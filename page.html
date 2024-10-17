@@ -16,11 +16,11 @@
                     <li><a href="">GPIO's</a></li>
                     <li><a href="">monitor</a></li>
                 </ul>
-                <button type="button"><span></span></button>
+                <button type="button" onclick="toggleBtn()" id="btn"><span></span></button>
             </nav>
             
             <div class="bird-cont">
-                <img src="../../../Downloads/Bird Person.PNG" alt="birb" class="bird">
+                <img src="../../../Downloads/Bird Person.PNG" alt="birb" class="bird" id="bird">
             </div>
 
             <div class="text-container">
@@ -28,10 +28,26 @@
                 <p>Up, Up, Down, Down, Left, Right, B, A, Start. The remainder of this text will simply
                     be used to fill up and wrap text so that there is at least something else here for now.<br>
                     <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Click the Link for a fun surprise.</a>
+                    <div class="control">
+                        <p>04</p>
+                        <div class="line"><span></span></div>
+                        <p>05</p>
+                    </div>
                 </p>
             </div>
 
         </div>
+
+        <script>
+            var btn = document.getElementById("btn");
+            var bird = document.getElementById("bird");
+            function toggleBtn(){
+                btn.classList.toggle(".active");
+                bird.classList.toggle(".on");
+            }
+
+        </script>
+
 
     </body>
 </html>

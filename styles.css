@@ -7,7 +7,7 @@
 }
 
 .hero{
-    background: #ffffff ;
+    background: #a0a0a0 ;   /* fffff=white 000000=black*/
     min-height: 100vh;
     width: 100%;
     color: #404040;
@@ -50,6 +50,7 @@ button{
     border: 1;
     outline: 0;
     cursor: pointer; 
+    transition: background-color 0.5s, margin-left 0.5;
 }
 
 button span{
@@ -59,6 +60,7 @@ button span{
     width: 22px;
     border-radius: 50%;
     margin-left: 2px;
+    transition: background-color 0.5s;
 }
 
 .bird-cont{
@@ -74,6 +76,8 @@ button span{
     top: 100%;
     left: 10px;
     transform: translateY(40%);
+    opacity: 0;
+    transition: opacity 0.5s;
 }
 
 .text-container{
@@ -93,11 +97,49 @@ button span{
 }
 .text-container a{
     text-decoration: none;
-    background: darkgrey;
+    background: white;
     padding: 14px 40px;
     display: inline-block;
-    border-radius: 5px;
+    border-radius: 10px;
     color: black;
     margin-top: 10px;
     font-size: 18px;
+}
+.control{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 150px;
+}
+
+.control .line{
+    width: 250px;
+    height: 4px;
+    background: #fff;
+    margin: 0 20px;
+    border-radius: 2px;
+
+}
+
+.control .line span{
+    width: 50%;
+    height: 8px;
+    margin-top: -2px;
+    border-radius: 4px;
+    background: #00986f;
+    display: block;
+}
+
+.active{
+    background: green;
+
+}
+
+.active span{
+    background: #fff;
+    margin-left: 31px;
+}
+
+.on{
+    opacity: 1;
 }
