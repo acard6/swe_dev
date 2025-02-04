@@ -1,4 +1,16 @@
+/*	
+ *	Example taken from gtk's website and used as a basis
+ *	https://www.gtk.org/docs/getting-started/hello-world/
+ *	
+ *	
+ *	
+ *	
+ *	
+ */
+
 #include <gtk/gtk.h>
+
+
 
 static void print_hello (GtkWidget *widget, gpointer data){
 	g_print("Hello from the terminal\n");	// statement printed to terminal
@@ -19,13 +31,17 @@ static void activate (GtkApplication *app, gpointer user_data){
 	gtk_window_present(GTK_WINDOW (window));								// display this window
 }
 
-int main (int argc, char **argv){
-
+int main(int argc, char **argv){
+	/*
+	 *	create a GTKapplication object and run it.
+	 *	here GTK application is created & initialize using
+	 *	the gtk_application_new() function.
+	 */ 
 	GtkApplication *app;
 	int status;
 
-	app = gtk_application_new("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
-	g_signal_connect(app, "activate", G_CALLBACK (activate), NULL);
+	app = gtk_application_new("com.github.acard6.MyApp", G_APPLICATION_DEFAULT_FLAGS);	// application ID
+	g_signal_connect(app, "activate", G_CALLBACK (activate), NULL);						// linkage between app and activate function on activate
 	status = g_application_run(G_APPLICATION (app), argc, argv);
 	g_object_unref(app);
 
