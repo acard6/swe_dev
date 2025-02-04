@@ -1,6 +1,7 @@
 #gcc $(pkg-config --cflags gtk4) -o hello-world-gtk hello-world-gtk.c $(pkg-config --libs gtk4)
 
 # courtesy of the people at stack overflow https://stackoverflow.com/questions/21548464/how-to-write-a-makefile-to-compile-a-simple-c-program
+# various other sources that I will add a link to later
 
 # variables
 CC      = gcc			# compiler gcc for c++ / 
