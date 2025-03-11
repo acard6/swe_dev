@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
+from datetime import datetime
 from meteostat import Point, Daily, units
 import meteostat.units as units
 import openpyxl
@@ -7,6 +6,12 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 import pandas as pd
 import holidays
 import os
+
+
+cd = os.path.dirname(os.path.abspath(__file__))
+file_name = cd+"\\data.xlsx"
+file = os.path.join(cd, file_name)
+
 
 def get_weather():
     """ gets weather data using meteostat """
@@ -29,10 +34,6 @@ def add_data(df):
         much thanks to stackpverflow 
         https://stackoverflow.com/questions/38074678/append-existing-excel-sheet-with-new-dataframe-using-python-pandas/38075046#38075046
     """
-    cd = os.path.dirname(os.path.abspath(__file__))
-    file_name = cd+"\\data.xlsx"
-    file = os.path.join(cd, file_name)
-
     if os.path.isfile(file):  # if file already exists append to existing file
         workbook = openpyxl.load_workbook(file)  # load workbook if already exists
         sheet = workbook['Sheet1']  # declare the active sheet 
@@ -50,12 +51,32 @@ def add_data(df):
 
 
 def get_holidays():
-    pass
+    df = pd.read_excel(file, usecols="C")
+    # time = df["date"][104] # independance day
+    us_holidays = holidays.US(categories=("public","unofficial"))
+    bank_holidays = holidays.NYSE()
+    for date in df["date"]:
+        text = ""
+        us = us_holidays.get(date) 
+        bank = bank_holidays.get(date)
+        if bank == None and us == None:
+            continue
+        elif us == bank:
+            text = us
+        elif bank == None:
+            text = us
+        elif us == None:
+            text = bank
+        else:
+            text =us
+
+        print(text,end="\t")
+        print("{}-{}-{}".format(date.year, date.month, date.day) )
 
 
 
 def main():
-    pass
+    get_holidays()
 
 if __name__ == "__main__":
 	main()

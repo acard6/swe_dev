@@ -1,0 +1,104 @@
+weekly data
+week 0: 272
+week 1: 339
+week 2: 583
+week 3: 726
+week 4: 529
+week 5: 579
+week 6: 591
+week 7: 765
+week 8: 638
+week 9: 616
+week 10: 597
+week 11: 680
+week 12: 676
+week 13: 670
+week 14: 764
+week 15: 737
+week 16: 672
+week 17: 891
+week 18: 799
+week 19: 805
+week 20: 688
+week 21: 749
+week 22: 686
+week 23: 667
+week 24: 775
+week 25: 838
+week 26: 788
+week 27: 583
+week 28: 779
+week 29: 683
+week 30: 656
+week 31: 454
+week 32: 659
+week 33: 770
+week 34: 597
+week 35: 665
+week 36: 621
+week 37: 748
+week 38: 784
+week 39: 750
+week 40: 741
+week 41: 496
+week 42: 462
+week 43: 543
+week 44: 612
+week 45: 543
+week 46: 445
+week 47: 726
+week 48: 593
+week 49: 549
+week 50: 309
+
+data per given day
+Friday: 153.82
+Saturday: 174.76
+Sunday: 62.82
+Monday: 52.86
+Tuesday: 61.58
+Wednesday: 67.26
+Thursday: 76.82
+
+data per given month
+March: 36.16
+April: 82.77
+May: 93.84
+June: 95.97
+July: 107.71
+August: 111.32
+September: 102.80
+October: 87.58
+November: 99.00
+December: 105.10
+January: 76.19
+February: 82.75
+
+joint data for given month and day
+January:Friday:138.6
+January:Saturday:179.0
+February:Friday:172.5
+February:Saturday:182.5
+April:Friday:138.75
+April:Saturday:165.5
+May:Friday:159.4
+May:Sunday:94.75
+June:Friday:168.0
+July:Thursday:116.0
+July:Friday:172.25
+July:Saturday:198.25
+August:Thursday:110.6
+August:Friday:177.8
+August:Saturday:184.8
+September:Wednesday:96.25
+September:Thursday:95.5
+September:Friday:164.25
+September:Saturday:199.25
+October:Friday:176.25
+October:Saturday:195.75
+November:Wednesday:91.75
+November:Friday:144.2
+November:Saturday:189.8
+December:Tuesday:114.6
+December:Friday:147.25
+December:Saturday:188.25

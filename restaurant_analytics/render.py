@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 import os
 import calendar
+import json
 
 cd = os.path.dirname(os.path.abspath(__file__))
-file_name = cd+"\\covers_data.xlsx"
+file_name = cd+"\\data.xlsx"
 fp = os.path.join(cd, file_name)
 
 
@@ -69,18 +70,21 @@ def month_day_joint():
 
 
 def main():
-	# d = weekly_total()
-	# print(d)
+	d = weekly_total()
+	print("weekly data")
+	for i in range(len(d)):
+		print("week {}: {}".format(i, d[i]))
 
 	A = {}
 	a = days_of_week()
+	print("data per given day")
 	for key, val in a.items():
 		#daily average throughout the week
 		out = np.sum(val)/len(val)
 		A[key] = out
 		print("{}: {:.2f}".format(key,out) )
 
-	print()
+	print("\ndata per given month")
 	B = {}
 	b = monthly_total()
 	for key, val in b.items():
@@ -91,10 +95,10 @@ def main():
 			B[key] = val/30
 		else:
 			B[key] = val/31 
-		print("{}: {:.2f}".format(key,val/30))
+		print("{}: {:.2f}".format(key,B[key]))
 		
 
-	print()
+	print("\njoint data for given month and day")
 	c = month_day_joint()
 	#day-month combo that exceeds daily & month avg  
 	for i in range(len(c)):
@@ -105,8 +109,8 @@ def main():
 			margin_1 = bool(avg/A[day] > 0.9)
 			margin_2 = bool(avg/B[month] > 0.9)
 
-			# if margin_1 and margin_2 and day:
-			# 	print( "{}:{}:{}".format(month, day, avg) )
+			if margin_1 and margin_2 and day:
+				print( "{}:{}:{}".format(month, day, avg) )
 			# if month == "April":
 			# 	print( "{}:{}:{}".format(month, day, avg) )
 
