@@ -9,14 +9,17 @@ import os
 
 
 cd = os.path.dirname(os.path.abspath(__file__))
-file_name = cd+"\\data.xlsx"
+file_name = cd+"\\predictions.xlsx"
 file = os.path.join(cd, file_name)
 
 
-def get_weather():
-    """ gets weather data using meteostat """
-    start = datetime(2024, 3, 22)
-    end = datetime(2025,3,9)
+def get_weather(start, end):
+    """ gets weather data using meteostat 
+        input Datetime(yyyy,mm,dd)
+    """
+    start = start
+    end = end
+    # end = datetime(2025,3,9)
 
     city = Point(41.845044, -87.928607)
 
@@ -27,6 +30,7 @@ def get_weather():
 
     to_add = ["tavg", "prcp", "snow", "wspd"]
     df = data[to_add]
+    return  df
 
 
 def add_data(df):
@@ -76,7 +80,11 @@ def get_holidays():
 
 
 def main():
-    get_holidays()
+    # get_holidays()
+    start = datetime(2025, 3, 10)
+    end = datetime(2025,4, 1)
+    df = get_weather(start, end)
+    print(df["tavg"][-1])
 
 if __name__ == "__main__":
 	main()
