@@ -3,6 +3,7 @@ import numpy as np
 import os
 import calendar
 import json
+import matplotlib.pyplot as plt
 
 cd = os.path.dirname(os.path.abspath(__file__))
 file_name = cd+"\\data.xlsx"
@@ -74,6 +75,14 @@ def main():
 	# print("weekly data")
 	# for i in range(len(d)):
 	# 	print("week {}: {}".format(i, d[i]))
+	img_pth = os.path.join(cd,"images/weekly_covers.png")
+	plt.plot(d, label="weekly covers")
+	plt.xlabel("week")
+	plt.ylabel("covers")
+	plt.title("Weekly covers")
+	plt.savefig(img_pth)
+	plt.show()
+
 
 	A = {}
 	a = days_of_week()
