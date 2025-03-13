@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 
-print(torch.__version__)
+# print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
 file_name = cd+"\\data.xlsx"
@@ -28,21 +28,20 @@ class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
     def __init__(self, input_dim=6, output_dim=1):
         super(NN_model, self).__init__()
-
-        self.hiden1 = nn.Linear(input_dim,50)
-        self.act1 = nn.Softmax(dim=1)
-        self.hidden2 = nn.Linear(50,50)
-        self.act2 = nn.Sigmoid()
-        self.out = nn.Linear(50,output_dim)
-        self.out_act = nn.Sigmoid()
+        a = 256
+        b = 64
+        c = 16
+        self.hidden1 = nn.Linear(input_dim,a)
+        self.hidden2 = nn.Linear(a,b)
+        self.hidden3 = nn.Linear(b,c)
+        self.out = nn.Linear(c,output_dim)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
-        x = self.hiden1(x)
-        x = self.act1(x)
-        x = self.hidden2(x)
-        x = self.act2(x)
+        x = self.relu(self.hidden1(x))
+        x = self.relu(self.hidden2(x))
+        x = self.relu(self.hidden3(x))
         x = self.out(x)
-        x = self.out_act(x)
 
         return x
 
@@ -50,33 +49,37 @@ class NN_model(nn.Module):
 def convert_data(size=16):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:H")
-    n = int(len(df) * 0.85)
+    n = int(len(df) * 0.95)
 
     x = df.drop(columns="count")    # taking all but the target as inputs
     x['date'] = x["date"].dt.day_of_year    # converting dates to day of the year
+    for column in x.columns: 
+        x[column] = x[column]  / x[column].abs().max() 
     y = df["count"]         # target values
-    y = np.array(y/y.max(), dtype=np.float32)    #normalizing target values
-
+    # y = np.array(y/y.max(), dtype=np.float32)    #normalizing target values
+    a = 355
     # splitting data to train on bottom 85% and test the rest
-    x_train, x_test = x.iloc[:n], x.iloc[n:]
-    y_train, y_test = y[:n], y[n:]
-
+    x_train, x_test = x.iloc[:n], x.iloc[n:a]
+    y_train, y_test = y[:n], y[n:a]
+    x_pred = x.iloc[a:]
+    y_pred = y[a:]
     # converting dataframe to tensors and moving to proper device for max efficiency
     X_train, X_test = torch.tensor(x_train.values, dtype=torch.float32).to(device), torch.tensor(x_test.values, dtype=torch.float32).to(device)
-    Y_train, Y_test = torch.as_tensor(y_train).unsqueeze(1).to(device), torch.as_tensor(y_test).unsqueeze(1).to(device)
-
+    Y_train, Y_test = torch.as_tensor(y_train.values, dtype=torch.float32).unsqueeze(1).to(device), torch.as_tensor(y_test.values, dtype=torch.float32).unsqueeze(1).to(device)
+    X_pred, Y_pred = torch.tensor(x_pred.values, dtype=torch.float32).to(device), torch.as_tensor(y_pred.values, dtype=torch.float32).unsqueeze(1).to(device)
 
     # converting tensor to tensordataset
     train_data = TensorDataset(X_train, Y_train)
     test_data = TensorDataset(X_test, Y_test)
+    pred_data = TensorDataset(X_pred, Y_pred)
 
     # converting tensordataset to dataloader
     train_loader = DataLoader(train_data, batch_size=size, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=size, shuffle=False)
+    pred_loader = DataLoader(pred_data, batch_size=size, shuffle=False)
 
     print("successfully converted data to tensor")
-    print("now starting to analyze data using simple model with Adam")
-    return train_loader, test_loader 
+    return train_loader, test_loader, pred_loader 
 
 
 def future_data(size=16):
@@ -86,6 +89,8 @@ def future_data(size=16):
     df = pd.read_excel(pred_file,usecols="A,C:H")
     x = df.drop(columns="count")
     x['date'] = x['date'].dt.day_of_year
+    for column in x.columns: 
+        x[column] = x[column]  / x[column].abs().max()
     y = df["count"]
 
     # converting dataframe to tensor and moving to any accelerator
@@ -99,10 +104,11 @@ def future_data(size=16):
     return pred_loader
 
 
-def train(model,optimizer, loss_fn, train_loader, epochs=100):
+def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     '''time to train the model on the data'''
     model.to(device)
 
+    print("now starting to analyze data using simple model with Adam")
     # simple set up of variables
     num_epochs = epochs
     losses = []
@@ -121,9 +127,13 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100):
 
             optimizer.step()
             running_loss += loss.item()
-        if epoch%50 == 0:
+        if epoch%100 == 0:
             print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
         losses.append(running_loss / len(train_loader))
+
+        if scheduler != None:
+            scheduler.step()
+    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
     # print(f"{data}\n{target}")
 
     torch.save(model.state_dict(), "\\weights.pth")
@@ -145,14 +155,16 @@ def test(model, loss_fn, test_loader):
             # predict values
             predicted = model(data)
             for i in range(len(predicted)):
-                p = int(predicted[i]*265)
-                a = int(target[i]*265)
+                p = int(predicted[i])
+                a = int(target[i])
+                # if abs(p-a) <= 5:
+                #     print(f"{p}\t\t{a}\t{abs(p-a)}")
                 print(f"{p}\t\t{a}\t{abs(p-a)}")
             # compute loss
             loss = loss_fn(predicted, target)
             tot_loss += loss.item()
 
-            correct += (abs(predicted - target) <= 0.015).sum().item()
+            correct += (abs(predicted - target) <= 10).sum().item()
             samples += target.size(0)
 
     average_loss = tot_loss / len(test_loader)
@@ -170,10 +182,10 @@ def predict(model, pred_loader):
         print("predicting....")
         for data, taget in pred_loader:
             data = data.to(device)
-            print(data)
+            # print(data)
             predicted = model(data)
             for i in range(len(predicted)):
-                p = int(predicted[i]*265)
+                p = int(predicted[i])
                 print(f"{p}")
             # compute loss
 
@@ -192,23 +204,24 @@ def plot_losses(epochs, loss_arr):
 def main():
     batch_size = 32
     # inputs for the model to use to operate
-    train_loader, test_loader = convert_data(batch_size)
-    num_epochs = 500
+    train_loader, test_loader, future_loader = convert_data(batch_size)
+    num_epochs = 1000
     model = NN_model()
-    optimizer = optim.Adam(params=model.parameters(), lr=0.001)
-    loss_fn = nn.MSELoss()
+    optimizer = optim.Adam(params=model.parameters(), lr=0.05)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
+    loss_fn = nn.L1Loss()
 
     # training the model
-    losses = train(model,optimizer, loss_fn, train_loader, num_epochs)
+    losses = train(model,optimizer, loss_fn, train_loader, num_epochs, scheduler=scheduler)
 
     #testing the model
     test(model, loss_fn, test_loader)
 
     # plotting losses
-    plot_losses(num_epochs, losses)
+    # plot_losses(num_epochs, losses)
 
     # read data and make a prediction
-    future_loader = future_data(batch_size)
+    # future_loader = future_data(batch_size)
     predict(model, future_loader)
 
 
