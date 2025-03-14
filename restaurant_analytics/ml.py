@@ -2,15 +2,16 @@ import pandas as pd
 import torch
 import numpy as np
 import os
-from tqdm import tqdm
+# from tqdm import tqdm
 import torch
 import torch.optim as optim
 import torch.nn as nn
-import torch.nn.functional as F
+# import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
-from torchvision import transforms
-from torchvision.utils import save_image
+# from torchvision import transforms
+# from torchvision.utils import save_image
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 
 
@@ -23,6 +24,8 @@ pred_file_name = cd + "\\predictions.xlsx"
 pred_file = os.path.join(cd, pred_file_name)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+date = None
+year = "2025"
 
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
@@ -31,16 +34,19 @@ class NN_model(nn.Module):
         a = 256
         b = 64
         c = 16
+        d= 4
         self.hidden1 = nn.Linear(input_dim,a)
         self.hidden2 = nn.Linear(a,b)
         self.hidden3 = nn.Linear(b,c)
-        self.out = nn.Linear(c,output_dim)
+        self.hidden4 = nn.Linear(c,d)
+        self.out = nn.Linear(d,output_dim)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         x = self.relu(self.hidden1(x))
         x = self.relu(self.hidden2(x))
         x = self.relu(self.hidden3(x))
+        x = self.relu(self.hidden4(x))
         x = self.out(x)
 
         return x
@@ -49,15 +55,19 @@ class NN_model(nn.Module):
 def convert_data(size=16):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:H")
-    n = int(len(df) * 0.95)
+    percentage = 0.90               # % of data to use as training
+    n = int(len(df) * percentage)
+    a = 357                         # total amount of values to look at
 
     x = df.drop(columns="count")    # taking all but the target as inputs
     x['date'] = x["date"].dt.day_of_year    # converting dates to day of the year
+    global date
+    date = x["date"][a]
+
     for column in x.columns: 
         x[column] = x[column]  / x[column].abs().max() 
     y = df["count"]         # target values
     # y = np.array(y/y.max(), dtype=np.float32)    #normalizing target values
-    a = 355
     # splitting data to train on bottom 85% and test the rest
     x_train, x_test = x.iloc[:n], x.iloc[n:a]
     y_train, y_test = y[:n], y[n:a]
@@ -78,7 +88,7 @@ def convert_data(size=16):
     test_loader = DataLoader(test_data, batch_size=size, shuffle=False)
     pred_loader = DataLoader(pred_data, batch_size=size, shuffle=False)
 
-    print("successfully converted data to tensor")
+    print("successfully converted data to tensor\n")
     return train_loader, test_loader, pred_loader 
 
 
@@ -108,7 +118,7 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     '''time to train the model on the data'''
     model.to(device)
 
-    print("now starting to analyze data using simple model with Adam")
+    print("Analyzing data with the model:")
     # simple set up of variables
     num_epochs = epochs
     losses = []
@@ -135,13 +145,14 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
             scheduler.step()
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
     # print(f"{data}\n{target}")
-
+    print(f"average loss on training: {np.average(losses)}\n")
     torch.save(model.state_dict(), "\\weights.pth")
     return losses
 
 
 def test(model, loss_fn, test_loader):
     '''time to evaluate the model on unseen data'''
+    print("Testing the model on unseen data")
     model.eval()
     # predefine some variables for testing
     samples = 0
@@ -186,7 +197,9 @@ def predict(model, pred_loader):
             predicted = model(data)
             for i in range(len(predicted)):
                 p = int(predicted[i])
-                print(f"{p}")
+                day = str(date+i)
+                res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
+                print(f"{res}: {p}")
             # compute loss
 
 

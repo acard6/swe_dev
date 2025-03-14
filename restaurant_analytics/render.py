@@ -6,7 +6,7 @@ import json
 import matplotlib.pyplot as plt
 
 cd = os.path.dirname(os.path.abspath(__file__))
-file_name = cd+"\\data.xlsx"
+file_name = cd+"\\covers_data.xlsx"
 fp = os.path.join(cd, file_name)
 
 
@@ -49,7 +49,7 @@ def days_of_week():
 	"""dict of array for a given day of the week(i.e. 'Sunday:[1st sunday, 2nd, ..]')"""
 	df = pd.read_excel(fp, usecols="A,D",)
 	l = len(df["count"])
-	ret = {"Friday":[], "Saturday":[], "Sunday":[], "Monday":[], "Tuesday":[], "Wednesday":[], "Thursday":[]}
+	ret = {"Sunday":[], "Monday":[], "Tuesday":[], "Wednesday":[], "Thursday":[], "Friday":[], "Saturday":[]}
 	for i in range(l):
 		ret[df["day"][i]].append(df["count"][i])
 
@@ -75,13 +75,14 @@ def main():
 	# print("weekly data")
 	# for i in range(len(d)):
 	# 	print("week {}: {}".format(i, d[i]))
-	img_pth = os.path.join(cd,"images/weekly_covers.png")
-	plt.plot(d, label="weekly covers")
-	plt.xlabel("week")
-	plt.ylabel("covers")
-	plt.title("Weekly covers")
-	plt.savefig(img_pth)
-	plt.show()
+	# img_pth = os.path.join(cd,"images/weekly_covers.png")
+	# plt.plot(d, label="weekly covers")
+	# plt.xlabel("week")
+	# plt.ylabel("covers")
+	# plt.title("Weekly covers")
+	# plt.grid(True)
+	# plt.savefig(img_pth)
+	# plt.show()
 
 
 	A = {}
@@ -92,6 +93,15 @@ def main():
 		out = np.sum(val)/len(val)
 		A[key] = out
 		# print("{}: {:.2f}".format(key,out) )
+	img_pth = os.path.join(cd,"images/daily_average.png")
+	fig, ax = plt.subplots()
+	plt.bar(range(len(A)), list(A.values()), align='center')
+	plt.xticks(range(len(A)), list(A.keys()), rotation=45)
+	plt.grid(True)
+	plt.title("Average covers per Day")
+	plt.savefig(img_pth)
+	plt.show()
+
 
 	# print("\ndata per given month")
 	B = {}
@@ -105,6 +115,14 @@ def main():
 		else:
 			B[key] = val/31 
 		# print("{}: {:.2f}".format(key,B[key]))
+	# img_pth = os.path.join(cd,"images/monthly_average.png")
+	# fig, ax = plt.subplots()
+	# plt.bar(range(len(B)), list(B.values()), align='center')
+	# plt.xticks(range(len(B)), list(B.keys()), rotation=45)
+	# plt.grid(True)
+	# plt.title("Monthly average covers")
+	# plt.savefig(img_pth)
+	# plt.show()
 		
 
 	# print("\njoint data for given month and day")

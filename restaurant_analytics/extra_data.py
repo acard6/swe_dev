@@ -84,7 +84,7 @@ def main():
     start = datetime(2025, 3, 10)
     end = datetime(2025,4, 1)
     df = get_weather(start, end)
-    print(df["tavg"][-1])
+    print(df)
 
 if __name__ == "__main__":
 	main()
