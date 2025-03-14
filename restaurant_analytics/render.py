@@ -88,19 +88,63 @@ def main():
 	A = {}
 	a = days_of_week()
 	# print("data per given day")
+
+
 	for key, val in a.items():
 		#daily average throughout the week
 		out = np.sum(val)/len(val)
 		A[key] = out
 		# print("{}: {:.2f}".format(key,out) )
-	img_pth = os.path.join(cd,"images/daily_average.png")
-	fig, ax = plt.subplots()
-	plt.bar(range(len(A)), list(A.values()), align='center')
-	plt.xticks(range(len(A)), list(A.keys()), rotation=45)
-	plt.grid(True)
-	plt.title("Average covers per Day")
-	plt.savefig(img_pth)
-	plt.show()
+#plotting a single days values
+	# selected_day = "Sunday"
+	# values = a[selected_day]
+	# plt.plot(values, color="black", label=selected_day)
+	# img_pth = os.path.join(cd,f"images/{selected_day}_covers.png")
+	# # Customize the plot
+	# plt.xlabel("week")
+	# plt.ylabel("covers")
+	# plt.title(f"Values for {selected_day}")
+	# plt.grid(True)
+	# plt.savefig(img_pth)
+	# # Show the plot
+	# plt.show()
+
+#adding all days of the weeks data to a single graph
+	# colors = {
+	# 	"Monday": "red",
+	# 	"Tuesday": "blue",
+	# 	"Wednesday": "green",
+	# 	"Thursday": "purple",
+	# 	"Friday": "orange",
+	# 	"Saturday": "cyan",
+	# 	"Sunday": "magenta"
+	# }
+	# fig, ax = plt.subplots(figsize=(10, 5))
+
+	# # Plot each day's values on the same axis
+	# for (day, values) in a.items():
+	# 	x = range(1, len(values) + 1)  # X-axis (e.g., 1, 2, 3 for each value)
+	# 	ax.plot(x, values, marker='o', linestyle='-', color=colors[day], alpha=0.7, label=day)
+	# img_pth = os.path.join(cd,"images/daily_covers.png")
+	# # Customize the plot
+	# ax.set_xlabel("week")
+	# ax.set_ylabel("Values")
+	# ax.set_title("data for every data over time")
+	# ax.legend(loc="upper right")  # Show legend
+	# ax.grid(True)
+	# plt.savefig(img_pth)
+	# plt.show()
+
+#adding daily averages to a bar graph
+	# img_pth = os.path.join(cd,"images/daily_average.png")
+	# plt.bar(range(len(A)), list(A.values()), align='center')
+	# plt.xticks(range(len(A)), list(A.keys()), rotation=45)
+	# plt.grid(True)
+	# plt.title("Average covers per Day")
+	# plt.savefig(img_pth)
+	# plt.show()
+
+
 
 
 	# print("\ndata per given month")
@@ -115,6 +159,7 @@ def main():
 		else:
 			B[key] = val/31 
 		# print("{}: {:.2f}".format(key,B[key]))
+#adding monthly totals and averages to abar graph
 	# img_pth = os.path.join(cd,"images/monthly_average.png")
 	# fig, ax = plt.subplots()
 	# plt.bar(range(len(B)), list(B.values()), align='center')
