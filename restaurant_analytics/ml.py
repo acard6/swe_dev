@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, TensorDataset
 # from torchvision import transforms
 # from torchvision.utils import save_image
 import matplotlib.pyplot as plt
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 
@@ -25,28 +25,28 @@ pred_file = os.path.join(cd, pred_file_name)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
-year = "2025"
-
+year = 2025
+a = 256
+b = 96
+c = 4
+d = 1
+print(f"b: {b}, c: {c}")
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
     def __init__(self, input_dim=6, output_dim=1):
         super(NN_model, self).__init__()
-        a = 256
-        b = 64
-        c = 16
-        d= 4
         self.hidden1 = nn.Linear(input_dim,a)
         self.hidden2 = nn.Linear(a,b)
         self.hidden3 = nn.Linear(b,c)
         self.hidden4 = nn.Linear(c,d)
-        self.out = nn.Linear(d,output_dim)
+        self.out = nn.Linear(c,output_dim)
         self.relu = nn.ReLU()
 
     def forward(self, x):
         x = self.relu(self.hidden1(x))
         x = self.relu(self.hidden2(x))
         x = self.relu(self.hidden3(x))
-        x = self.relu(self.hidden4(x))
+        # x = self.relu(self.hidden4(x))
         x = self.out(x)
 
         return x
@@ -55,9 +55,9 @@ class NN_model(nn.Module):
 def convert_data(size=16):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:H")
-    percentage = 0.90               # % of data to use as training
-    n = int(len(df) * percentage)
-    a = 357                         # total amount of values to look at
+    percentage = 0.85               # % of data to use as training
+    a = 363                         # total amount of values to look at
+    n = int(a * percentage)
 
     x = df.drop(columns="count")    # taking all but the target as inputs
     x['date'] = x["date"].dt.day_of_year    # converting dates to day of the year
@@ -118,7 +118,7 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     '''time to train the model on the data'''
     model.to(device)
 
-    print("Analyzing data with the model:")
+    # print("Analyzing data with the model:")
     # simple set up of variables
     num_epochs = epochs
     losses = []
@@ -138,31 +138,32 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
             optimizer.step()
             running_loss += loss.item()
         if epoch%100 == 0:
-            print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
+            print("",end=".")
+        #     print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
         losses.append(running_loss / len(train_loader))
 
         if scheduler != None:
             scheduler.step()
-    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
+    # print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
     # print(f"{data}\n{target}")
-    print(f"average loss on training: {np.average(losses)}\n")
+    # print(f"average loss on training: {np.average(losses)}\n")
+    print(".",end="\n")
     torch.save(model.state_dict(), "\\weights.pth")
-    return losses
+    return losses   #returns an array of losses over epochs with "epochs" elements inside
 
 
 def test(model, loss_fn, test_loader):
     '''time to evaluate the model on unseen data'''
-    print("Testing the model on unseen data")
+    # print("Testing the model on unseen data")
     model.eval()
     # predefine some variables for testing
     samples = 0
     correct = 0
     tot_loss = 0
     with torch.no_grad():
-        print("predicted vs. actual  difference")
+        # print("predicted vs. actual  difference") 
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
-            # print(f"input size{data.shape}\tlabel size{target.shape}")
             # predict values
             predicted = model(data)
             for i in range(len(predicted)):
@@ -170,7 +171,7 @@ def test(model, loss_fn, test_loader):
                 a = int(target[i])
                 # if abs(p-a) <= 5:
                 #     print(f"{p}\t\t{a}\t{abs(p-a)}")
-                print(f"{p}\t\t{a}\t{abs(p-a)}")
+                # print(f"{p}\t\t{a}\t{abs(p-a)}")
             # compute loss
             loss = loss_fn(predicted, target)
             tot_loss += loss.item()
@@ -181,25 +182,30 @@ def test(model, loss_fn, test_loader):
     average_loss = tot_loss / len(test_loader)
     accuracy = correct / samples
 
-    print(f'Average Loss: {average_loss:.4f}')
-    print(f'Accuracy: {accuracy * 100:.2f}%')
+    # print(f'Average Loss on testing: {average_loss:.4f}')
+    # print(f'Accuracy: {accuracy * 100:.2f}%')
+    return average_loss, accuracy   #returns float for average loss and accuracy during this test
 
 
 def predict(model, pred_loader):
     '''predict on future days'''
     model.eval()
     # predefine some variables for testing
+    idx = 0
     with torch.no_grad():
         print("predicting....")
-        for data, taget in pred_loader:
+        for data, target in pred_loader:
             data = data.to(device)
             # print(data)
             predicted = model(data)
             for i in range(len(predicted)):
                 p = int(predicted[i])
-                day = str(date+i)
-                res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
-                print(f"{res}: {p}")
+                day = int(date+i+32*idx)
+                res = datetime(year,1,1) + timedelta(days=day-1)
+                res = res.strftime("%m/%d/%Y")
+                # res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
+                print(f"{i}:{res}: {p}")
+            idx += 1
             # compute loss
 
 
@@ -216,26 +222,41 @@ def plot_losses(epochs, loss_arr):
 
 def main():
     batch_size = 32
+    run_train_loss = []
+    run_test_loss = []
+    run_accuracy = []
+
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
     num_epochs = 1000
-    model = NN_model()
-    optimizer = optim.Adam(params=model.parameters(), lr=0.05)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
     loss_fn = nn.L1Loss()
+    for i in range(6):
+        print(f"run {i+1}",end=" ")
+        model = NN_model()
+        optimizer = optim.Adam(params=model.parameters(), lr=0.05)
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
 
-    # training the model
-    losses = train(model,optimizer, loss_fn, train_loader, num_epochs, scheduler=scheduler)
-
-    #testing the model
-    test(model, loss_fn, test_loader)
+        # training the model
+        train_losses = train(model,optimizer, loss_fn, train_loader, num_epochs, scheduler=scheduler)
+        run_train_loss.append(round(np.average(train_losses),2))
+        #testing the model
+        test_loss, acc = test(model, loss_fn, test_loader)
+        run_test_loss.append(round(test_loss,2))
+        run_accuracy.append(round((acc*100),2))
+    print("trained and tested model several times. results are in")
+    print("train losses:")
+    print(run_train_loss)
+    print("test losses")
+    print(run_test_loss)
+    print("accuracies:")
+    print(run_accuracy)
 
     # plotting losses
-    # plot_losses(num_epochs, losses)
+    # plot_losses(num_epochs, train_losses)
 
     # read data and make a prediction
     # future_loader = future_data(batch_size)
-    predict(model, future_loader)
+    # predict(model, future_loader)
 
 
 

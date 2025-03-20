@@ -1,5 +1,5 @@
 from datetime import datetime
-from meteostat import Point, Daily, units
+from meteostat import Point, Daily, units, Stations
 import meteostat.units as units
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -21,9 +21,16 @@ def get_weather(start, end):
     end = end
     # end = datetime(2025,3,9)
 
+    # station = Stations()
+    # station = station.nearby(41.845044, -87.928607)
+    # station = station.inventory('daily', (start,end))
+    # station.fetch(5)
+    # print(station)
+
     city = Point(41.845044, -87.928607)
 
-    data = Daily(city, start, end)
+    data = Daily(72534, start, end)
+    # data = Daily(city, start, end)
     data = data.convert(units.imperial)
     data = data.fetch()
 
@@ -81,7 +88,7 @@ def get_holidays():
 
 def main():
     # get_holidays()
-    start = datetime(2025, 3, 10)
+    start = datetime(2025, 3, 14)
     end = datetime(2025,4, 1)
     df = get_weather(start, end)
     print(df)
