@@ -29,8 +29,8 @@ def get_weather(start, end):
 
     city = Point(41.845044, -87.928607)
 
-    data = Daily(72534, start, end)
-    # data = Daily(city, start, end)
+    # data = Daily(72534, start, end)
+    data = Daily(city, start, end)
     data = data.convert(units.imperial)
     data = data.fetch()
 

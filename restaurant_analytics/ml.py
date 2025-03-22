@@ -27,7 +27,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 96
+b = 32  # use either b=64, c=32 or b=32,c=4
 c = 4
 d = 1
 print(f"b: {b}, c: {c}")
@@ -56,7 +56,7 @@ def convert_data(size=16):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:H")
     percentage = 0.85               # % of data to use as training
-    a = 363                         # total amount of values to look at
+    a = 365                         # total amount of values to look at
     n = int(a * percentage)
 
     x = df.drop(columns="count")    # taking all but the target as inputs
@@ -118,7 +118,7 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     '''time to train the model on the data'''
     model.to(device)
 
-    # print("Analyzing data with the model:")
+    print("Analyzing data with the model:")
     # simple set up of variables
     num_epochs = epochs
     losses = []
@@ -137,17 +137,17 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
 
             optimizer.step()
             running_loss += loss.item()
-        if epoch%100 == 0:
-            print("",end=".")
-        #     print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
+        if epoch%250 == 0:
+            # print("",end=".",flush=True)
+            print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
         losses.append(running_loss / len(train_loader))
 
         if scheduler != None:
             scheduler.step()
-    # print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
+    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
     # print(f"{data}\n{target}")
-    # print(f"average loss on training: {np.average(losses)}\n")
-    print(".",end="\n")
+    print(f"average loss on training: {np.average(losses)}\n")
+    # print(".",end="\n")
     torch.save(model.state_dict(), "\\weights.pth")
     return losses   #returns an array of losses over epochs with "epochs" elements inside
 
@@ -161,7 +161,7 @@ def test(model, loss_fn, test_loader):
     correct = 0
     tot_loss = 0
     with torch.no_grad():
-        # print("predicted vs. actual  difference") 
+        print("predicted vs. actual  difference") 
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             # predict values
@@ -169,8 +169,8 @@ def test(model, loss_fn, test_loader):
             for i in range(len(predicted)):
                 p = int(predicted[i])
                 a = int(target[i])
-                # if abs(p-a) <= 5:
-                #     print(f"{p}\t\t{a}\t{abs(p-a)}")
+                if abs(p-a) <= 5:
+                    print(f"{p}\t\t{a}\t{abs(p-a)}")
                 # print(f"{p}\t\t{a}\t{abs(p-a)}")
             # compute loss
             loss = loss_fn(predicted, target)
@@ -182,8 +182,8 @@ def test(model, loss_fn, test_loader):
     average_loss = tot_loss / len(test_loader)
     accuracy = correct / samples
 
-    # print(f'Average Loss on testing: {average_loss:.4f}')
-    # print(f'Accuracy: {accuracy * 100:.2f}%')
+    print(f'Average Loss on testing: {average_loss:.4f}')
+    print(f'Accuracy: {accuracy * 100:.2f}%')
     return average_loss, accuracy   #returns float for average loss and accuracy during this test
 
 
@@ -222,41 +222,41 @@ def plot_losses(epochs, loss_arr):
 
 def main():
     batch_size = 32
-    run_train_loss = []
-    run_test_loss = []
-    run_accuracy = []
+    # run_train_loss = []
+    # run_test_loss = []
+    # run_accuracy = []
 
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
     num_epochs = 1000
     loss_fn = nn.L1Loss()
-    for i in range(6):
-        print(f"run {i+1}",end=" ")
-        model = NN_model()
-        optimizer = optim.Adam(params=model.parameters(), lr=0.05)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
+    # for i in range(7):
+        # print(f"run {i+1}",end="",flush=True)
+    model = NN_model()
+    optimizer = optim.Adam(params=model.parameters(), lr=0.05)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
 
         # training the model
-        train_losses = train(model,optimizer, loss_fn, train_loader, num_epochs, scheduler=scheduler)
-        run_train_loss.append(round(np.average(train_losses),2))
+    train_losses = train(model,optimizer, loss_fn, train_loader, num_epochs, scheduler=scheduler)
+        # run_train_loss.append(round(np.average(train_losses),2))
         #testing the model
-        test_loss, acc = test(model, loss_fn, test_loader)
-        run_test_loss.append(round(test_loss,2))
-        run_accuracy.append(round((acc*100),2))
-    print("trained and tested model several times. results are in")
-    print("train losses:")
-    print(run_train_loss)
-    print("test losses")
-    print(run_test_loss)
-    print("accuracies:")
-    print(run_accuracy)
+    test_loss, acc = test(model, loss_fn, test_loader)
+        # run_test_loss.append(round(test_loss,2))
+        # run_accuracy.append(round((acc*100),2))
+    # print("trained and tested model several times. results are in")
+    # print("train losses:")
+    # print(run_train_loss)
+    # print("test losses")
+    # print(run_test_loss)
+    # print("accuracies:")
+    # print(run_accuracy)
 
     # plotting losses
     # plot_losses(num_epochs, train_losses)
 
     # read data and make a prediction
     # future_loader = future_data(batch_size)
-    # predict(model, future_loader)
+    predict(model, future_loader)
 
 
 
