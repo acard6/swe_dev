@@ -1,5 +1,4 @@
 import pandas as pd
-import torch
 import numpy as np
 import os
 # from tqdm import tqdm
@@ -27,8 +26,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 32  # use either b=64, c=32 or b=32,c=4
-c = 4
+b = 64  # use either b=64/c=32 or b=32/c=4
+c = 32
 d = 1
 print(f"b: {b}, c: {c}")
 class NN_model(nn.Module):
@@ -56,7 +55,7 @@ def convert_data(size=16):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:H")
     percentage = 0.85               # % of data to use as training
-    a = 365                         # total amount of values to look at
+    a = 375                         # total amount of values to look at
     n = int(a * percentage)
 
     x = df.drop(columns="count")    # taking all but the target as inputs
@@ -204,7 +203,7 @@ def predict(model, pred_loader):
                 res = datetime(year,1,1) + timedelta(days=day-1)
                 res = res.strftime("%m/%d/%Y")
                 # res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
-                print(f"{i}:{res}: {p}")
+                print(f"{res}: {p:<3}")
             idx += 1
             # compute loss
 
