@@ -18,6 +18,8 @@ from datetime import datetime, timedelta
 
 cd = os.path.dirname(os.path.abspath(__file__))
 file_name = cd+"\\data.xlsx"
+# file_name = cd+"\\fri-sat.xlsx"
+# file_name = cd+"\\sun-thur.xlsx"
 fp = os.path.join(cd, file_name)
 pred_file_name = cd + "\\predictions.xlsx"
 pred_file = os.path.join(cd, pred_file_name)
@@ -26,9 +28,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 64  # use either b=64/c=32 or b=32/c=4
-c = 32
+b = 32  # use either b=64/c=32 or b=32/c=4
+c = 4
 d = 1
+''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
+    amongst the different possible parameters used'''
 print(f"b: {b}, c: {c}")
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
@@ -56,6 +60,8 @@ def convert_data(size=16):
     df = pd.read_excel(fp,usecols="A,C:H")
     percentage = 0.85               # % of data to use as training
     a = 375                         # total amount of values to look at
+    # a = 108   #fri-sat
+    # a = 267   #sun-thur
     n = int(a * percentage)
 
     x = df.drop(columns="count")    # taking all but the target as inputs
@@ -160,7 +166,7 @@ def test(model, loss_fn, test_loader):
     correct = 0
     tot_loss = 0
     with torch.no_grad():
-        print("predicted vs. actual  difference") 
+        # print("predicted vs. actual  difference") 
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             # predict values
@@ -168,8 +174,8 @@ def test(model, loss_fn, test_loader):
             for i in range(len(predicted)):
                 p = int(predicted[i])
                 a = int(target[i])
-                if abs(p-a) <= 5:
-                    print(f"{p}\t\t{a}\t{abs(p-a)}")
+                # if abs(p-a) <= 5:
+                #     print(f"{p}\t\t{a}\t{abs(p-a)}")
                 # print(f"{p}\t\t{a}\t{abs(p-a)}")
             # compute loss
             loss = loss_fn(predicted, target)
