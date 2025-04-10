@@ -17,9 +17,19 @@ from datetime import datetime, timedelta
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-file_name = cd+"\\data.xlsx"
-# file_name = cd+"\\fri-sat.xlsx"
-# file_name = cd+"\\sun-thur.xlsx"
+time = "weekend"
+if time == "weekend":
+    file_name = cd+"\\fri-sat.xlsx"
+    LUT = 110     # fri-sat
+    
+elif time == "weekday":
+    file_name = cd+"\\sun-thur.xlsx"
+    LUT = 273     #sun-thur
+    
+else:
+    file_name = cd+"\\data.xlsx"
+    LUT = 383     # total amount of values to look at
+    
 fp = os.path.join(cd, file_name)
 pred_file_name = cd + "\\predictions.xlsx"
 pred_file = os.path.join(cd, pred_file_name)
@@ -28,8 +38,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 32  # use either b=64/c=32 or b=32/c=4
-c = 4
+b = 64  # use either b=64/c=32 or b=32/c=4
+c = 32
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
@@ -59,25 +69,22 @@ def convert_data(size=16):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:H")
     percentage = 0.85               # % of data to use as training
-    a = 375                         # total amount of values to look at
-    # a = 108   #fri-sat
-    # a = 267   #sun-thur
-    n = int(a * percentage)
-
+    n = int(LUT * percentage)
+    
     x = df.drop(columns="count")    # taking all but the target as inputs
     x['date'] = x["date"].dt.day_of_year    # converting dates to day of the year
     global date
-    date = x["date"][a]
+    date = x["date"][LUT]
 
     for column in x.columns: 
         x[column] = x[column]  / x[column].abs().max() 
     y = df["count"]         # target values
     # y = np.array(y/y.max(), dtype=np.float32)    #normalizing target values
     # splitting data to train on bottom 85% and test the rest
-    x_train, x_test = x.iloc[:n], x.iloc[n:a]
-    y_train, y_test = y[:n], y[n:a]
-    x_pred = x.iloc[a:]
-    y_pred = y[a:]
+    x_train, x_test = x.iloc[:n], x.iloc[n:LUT]
+    y_train, y_test = y[:n], y[n:LUT]
+    x_pred = x.iloc[LUT:]
+    y_pred = y[LUT:]
     # converting dataframe to tensors and moving to proper device for max efficiency
     X_train, X_test = torch.tensor(x_train.values, dtype=torch.float32).to(device), torch.tensor(x_test.values, dtype=torch.float32).to(device)
     Y_train, Y_test = torch.as_tensor(y_train.values, dtype=torch.float32).unsqueeze(1).to(device), torch.as_tensor(y_test.values, dtype=torch.float32).unsqueeze(1).to(device)
@@ -93,7 +100,7 @@ def convert_data(size=16):
     test_loader = DataLoader(test_data, batch_size=size, shuffle=False)
     pred_loader = DataLoader(pred_data, batch_size=size, shuffle=False)
 
-    print("successfully converted data to tensor\n")
+    print("successfully converted data to tensor")
     return train_loader, test_loader, pred_loader 
 
 
@@ -151,7 +158,7 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
             scheduler.step()
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
     # print(f"{data}\n{target}")
-    print(f"average loss on training: {np.average(losses)}\n")
+    print(f"Average loss on training: {np.average(losses):.2f}")
     # print(".",end="\n")
     torch.save(model.state_dict(), "\\weights.pth")
     return losses   #returns an array of losses over epochs with "epochs" elements inside
@@ -187,7 +194,7 @@ def test(model, loss_fn, test_loader):
     average_loss = tot_loss / len(test_loader)
     accuracy = correct / samples
 
-    print(f'Average Loss on testing: {average_loss:.4f}')
+    print(f'Average Loss on testing: {average_loss:.2f}')
     print(f'Accuracy: {accuracy * 100:.2f}%')
     return average_loss, accuracy   #returns float for average loss and accuracy during this test
 
@@ -233,7 +240,7 @@ def main():
 
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
-    num_epochs = 1000
+    num_epochs = 1500
     loss_fn = nn.L1Loss()
     # for i in range(7):
         # print(f"run {i+1}",end="",flush=True)

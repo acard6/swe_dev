@@ -159,7 +159,7 @@ def main():
 		out = np.sum(val)/len(val)
 		A[key] = out
 		# print("{}: {:.2f}".format(key,out) )
-	# print_daily_data(a, selected_day='Saturday')	# prints a line graph for each given day
+	# print_daily_data(a, selected_day='Monday')	# prints a line graph for each given day
 	# print_daily_all(a)	# prints all the days on the same graph
 	# print_daily_average(A)	# prints bar graph of daily averages
 
@@ -189,7 +189,7 @@ def main():
 			margin_1 = bool(avg/A[day] > 0.9)
 			margin_2 = bool(avg/B[month] > 0.9)
 			str = f"{month}-{day}"
-			print( "{:<19}\t{:.2f}".format(str, avg) )
+			# print( "{:<19}\t{:.2f}".format(str, avg) )
 			# if margin_1 and margin_2 and day:
 			# 	print( "{}:{}:{}".format(month, day, avg) )
 			# if month == "April":
