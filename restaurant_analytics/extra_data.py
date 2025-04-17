@@ -185,14 +185,21 @@ def pc12(x,y,z):
     ax.set_title('Linear Regression Best Fit Line in 3D')
     plt.show()
 
+
+def fourier_anal_sis():
+    pass
+
 def main():
     # get_holidays()
    
-    # start = datetime(2025, 4, 1)
-    # end = datetime(2025,5, 1)
-    # df = get_weather(start, end)
-    # print(df)
-    analsis()
+    
+    start = datetime(2025, 4, 10)
+    end = datetime(2025,5, 10)
+    df = get_weather(start, end)
+    print(df)
+    
+    
+    # analsis()
 
 if __name__ == "__main__":
 	main()

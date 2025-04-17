@@ -17,18 +17,18 @@ from datetime import datetime, timedelta
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = "weekend"
+time = ""
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 110     # fri-sat
+    LUT = 112     # fri-sat
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 273     #sun-thur
+    LUT = 278     #sun-thur
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 383     # total amount of values to look at
+    LUT = 390     # total amount of values to look at
     
 fp = os.path.join(cd, file_name)
 pred_file_name = cd + "\\predictions.xlsx"
@@ -38,12 +38,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 64  # use either b=64/c=32 or b=32/c=4
-c = 32
+b = 32  # use either b=64/c=32 or b=32/c=4
+c = 4  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
-print(f"b: {b}, c: {c}")
+print(f"b: {b}, c: {c}, time scale: {time}")
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
     def __init__(self, input_dim=6, output_dim=1):
@@ -240,7 +240,7 @@ def main():
 
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
-    num_epochs = 1500
+    num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 750 or 500.
     loss_fn = nn.L1Loss()
     # for i in range(7):
         # print(f"run {i+1}",end="",flush=True)
