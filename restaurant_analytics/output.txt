@@ -68,18 +68,18 @@ Friday: 149.29
 Saturday: 172.57
 
 average data per given month
-March: 78.35
-April: 156.70
+January: 76.10
+February: 82.75
+March: 69.49
+April: 80.97
 May: 93.84
 June: 95.97
-July: 107.71
+July: 111.19
 August: 111.32
-September: 102.80
+September: 105.30
 October: 87.58
 November: 99.00
 December: 105.10
-January: 76.19
-February: 82.75
 
 joint data for given month and day where both exceed each averages
 January-Friday          138.60
