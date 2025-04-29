@@ -63,10 +63,11 @@ def month_day_joint():
 	month_day =np.zeros(shape=(12,7,2))
 	l = len(df["count"])
 	for i in range(l):
-		month = df["date"][i].month-1
-		day = (df["idx"][i]+3)%7
-		month_day[month][day][0] += df["count"][i]
-		month_day[month][day][1] += 1
+		if df['count'][i] > 0:
+			month = df["date"][i].month-1
+			day = (df["idx"][i]+3)%7
+			month_day[month][day][0] += df["count"][i]
+			month_day[month][day][1] += 1
 	return month_day
 
 
@@ -158,7 +159,7 @@ def main():
 		#daily average throughout the week
 		out = np.sum(val)/len(val)
 		A[key] = out
-		# print("{}: {:.2f}".format(key,out) )
+		print("{}: {:.2f}".format(key,out) )
 	# print_daily_data(a, selected_day='Monday')	# prints a line graph for each given day
 	# print_daily_all(a)	# prints all the days on the same graph
 	# print_daily_average(A)	# prints bar graph of daily averages
@@ -178,22 +179,25 @@ def main():
 	# 	print("{}: {:.2f}".format(key,B[key]))
 	# print_monthly_average(B)		
 
-	print("\njoint data for given month and day")
 	c = month_day_joint()
 	#day-month combo that exceeds daily & month avg  
-	for i in range(len(c)):
-		for j in range(len(c[0])):
-			month = calendar.month_name[i+1]
-			day = calendar.day_name[j]
-			avg = c[i][j][0]/c[i][j][1]
-			margin_1 = bool(avg/A[day] > 0.9)
-			margin_2 = bool(avg/B[month] > 0.9)
-			str = f"{month}-{day}"
-			# print( "{:<19}\t{:.2f}".format(str, avg) )
-			# if margin_1 and margin_2 and day:
-			# 	print( "{}:{}:{}".format(month, day, avg) )
-			# if month == "April":
-			# 	print( "{}-{}:{:.2f}".format(month, day, avg) )
+	if False:
+		print("joint data for given month and day")
+		for i in range(len(c)):	# for month
+			for j in range(len(c[0])):	 # for day of week
+				month = calendar.month_name[i+1]
+				day = calendar.day_name[j]
+				avg = c[i][j][0]/c[i][j][1]
+				margin_1 = bool(avg/A[day] > 0.9)
+				margin_2 = bool(avg/B[month] > 0.9)
+				str = f"{month}-{day}"
+				print( f"{str:<19}\t{avg:.2f}" ) # uncomment to print total joint data
+
+				# if margin_1 and margin_2:			# uncomment to print joint data grater than averages
+				# 	print( f"{str:<19}\t{avg:.2f}" )
+
+				# if month == "December":						# uncomment to print joint data of certain month
+				# 	print( f"{str:<19}\t{avg:.2f}" )
 
 
 if __name__ == "__main__":
