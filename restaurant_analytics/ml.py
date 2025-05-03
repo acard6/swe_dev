@@ -17,18 +17,22 @@ from datetime import datetime, timedelta
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = ""
+time = "weekend"
+percentage = 0.75               # % of data to use as training
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 112     # fri-sat
+    LUT = 117     # fri-sat
+    correctness = 15
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 278     #sun-thur
+    LUT = 290     #sun-thur
+    correctness = 10
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 390     # total amount of values to look at
+    LUT = 407     # total amount of values to look at
+    correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
 pred_file_name = cd + "\\predictions.xlsx"
@@ -43,7 +47,7 @@ c = 4  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
-print(f"b: {b}, c: {c}, time scale: {time}")
+print(f"b: {b}, c: {c}, time scale: {time}, trainging on {percentage*100:.0f}% data")
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
     def __init__(self, input_dim=6, output_dim=1):
@@ -68,7 +72,6 @@ class NN_model(nn.Module):
 def convert_data(size=16):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:H")
-    percentage = 0.85               # % of data to use as training
     n = int(LUT * percentage)
     
     x = df.drop(columns="count")    # taking all but the target as inputs
@@ -174,21 +177,24 @@ def test(model, loss_fn, test_loader):
     tot_loss = 0
     with torch.no_grad():
         # print("predicted vs. actual  difference") 
+        # print(f"predicted\ttarget\tdifference")            
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             # predict values
             predicted = model(data)
+
             for i in range(len(predicted)):
                 p = int(predicted[i])
                 a = int(target[i])
-                # if abs(p-a) <= 5:
+                # if abs(p-a) <= correctness:
                 #     print(f"{p}\t\t{a}\t{abs(p-a)}")
                 # print(f"{p}\t\t{a}\t{abs(p-a)}")
+                
             # compute loss
             loss = loss_fn(predicted, target)
             tot_loss += loss.item()
 
-            correct += (abs(predicted - target) <= 10).sum().item()
+            correct += (abs(predicted - target) <= correctness).sum().item()
             samples += target.size(0)
 
     average_loss = tot_loss / len(test_loader)
@@ -240,7 +246,7 @@ def main():
 
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
-    num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 750 or 500.
+    num_epochs = 1500   #for weekday data consider 2000 epochs. weekend either 1500.
     loss_fn = nn.L1Loss()
     # for i in range(7):
         # print(f"run {i+1}",end="",flush=True)
