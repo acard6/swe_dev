@@ -11,6 +11,6 @@ First and foremost I plan to eventually feed in the data relating to holidays/sp
 # Current notes
 
 ## model tuning
-### This is a giant overview on my findings after running the model throught a few test to summarize how to best run the model(for deeper analysis it can be found in [finding on testing](#findings on testing))
+### This is a giant overview on my findings after running the model throught a few test to summarize how to best run the model(for deeper analysis it can be found in [finding on testing](#findings-on-testing))
 
 ## findings on testing
