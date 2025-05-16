@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = ""
+time = "weekday"
 percentage = 0.85               # % of data to use as training
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -42,8 +42,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 32  # use either b=64/c=32 or b=32/c=4
-c = 4  # 64x32 for weekday. 32x4 for weekend
+b = 64  # use either b=64/c=32 or b=32/c=4
+c = 32  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
@@ -246,7 +246,7 @@ def main():
 
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
-    num_epochs = 1500   #for weekday data consider 2000 epochs. weekend either 1500.
+    num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 1500.
     loss_fn = nn.L1Loss()
     # for i in range(7):
         # print(f"run {i+1}",end="",flush=True)
