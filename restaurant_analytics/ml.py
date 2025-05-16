@@ -17,21 +17,21 @@ from datetime import datetime, timedelta
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = "weekend"
-percentage = 0.75               # % of data to use as training
+time = ""
+percentage = 0.85               # % of data to use as training
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 117     # fri-sat
+    LUT = 120     # fri-sat
     correctness = 15
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 290     #sun-thur
+    LUT = 300     #sun-thur
     correctness = 10
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 407     # total amount of values to look at
+    LUT = 420     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
