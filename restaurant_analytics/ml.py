@@ -17,21 +17,21 @@ from datetime import datetime, timedelta
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = "weekday"
-percentage = 0.85               # % of data to use as training
+time = ""
+percentage = 0.80               # % of data to use as training
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 120     # fri-sat
+    LUT = 122     # fri-sat
     correctness = 15
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 300     #sun-thur
+    LUT = 303     #sun-thur
     correctness = 10
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 420     # total amount of values to look at
+    LUT = 425     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
@@ -42,8 +42,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 64  # use either b=64/c=32 or b=32/c=4
-c = 32  # 64x32 for weekday. 32x4 for weekend
+b = 32  # use either b=64/c=32 or b=32/c=4
+c = 4  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
