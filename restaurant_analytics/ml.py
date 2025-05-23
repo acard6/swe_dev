@@ -31,7 +31,7 @@ elif time == "weekday":
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 425     # total amount of values to look at
+    LUT = 427     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
@@ -193,7 +193,6 @@ def test(model, loss_fn, test_loader):
             # compute loss
             loss = loss_fn(predicted, target)
             tot_loss += loss.item()
-
             correct += (abs(predicted - target) <= correctness).sum().item()
             samples += target.size(0)
 
@@ -250,7 +249,7 @@ def main():
     loss_fn = nn.L1Loss()
     # for i in range(7):
         # print(f"run {i+1}",end="",flush=True)
-    model = NN_model()
+    model = NN_model(input_dim=len(train_loader))
     optimizer = optim.Adam(params=model.parameters(), lr=0.05)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
 
