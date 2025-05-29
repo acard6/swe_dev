@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader, TensorDataset
 # from torchvision.utils import save_image
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+from sklearn.preprocessing import LabelEncoder
 
 
 
@@ -18,20 +19,20 @@ from datetime import datetime, timedelta
 
 cd = os.path.dirname(os.path.abspath(__file__))
 time = ""
-percentage = 0.80               # % of data to use as training
+percentage = 0.85               # % of data to use as training
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 122     # fri-sat
+    LUT = 124     # fri-sat
     correctness = 15
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 303     #sun-thur
+    LUT = 307     #sun-thur
     correctness = 10
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 427     # total amount of values to look at
+    LUT = 431     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
@@ -50,16 +51,24 @@ d = 1
 print(f"b: {b}, c: {c}, time scale: {time}, trainging on {percentage*100:.0f}% data")
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
-    def __init__(self, input_dim=6, output_dim=1):
+    def __init__(self, input_dim=6, output_dim=1, num_hol=30,embed_dim=8):
         super(NN_model, self).__init__()
-        self.hidden1 = nn.Linear(input_dim,a)
+        self.embedding = nn.Embedding(num_embeddings=num_hol, embedding_dim=embed_dim)
+
+        comb_in_dim = input_dim + embed_dim
+
+        self.hidden1 = nn.Linear(comb_in_dim,a)
         self.hidden2 = nn.Linear(a,b)
         self.hidden3 = nn.Linear(b,c)
-        self.hidden4 = nn.Linear(c,d)
         self.out = nn.Linear(c,output_dim)
         self.relu = nn.ReLU()
 
-    def forward(self, x):
+    def forward(self, x, holiday_id):
+        hol_embed = self.embedding(holiday_id)
+        hol_vector = hol_embed.mean(dim=1)
+
+        x = torch.cat([x,hol_vector], dim=1)
+
         x = self.relu(self.hidden1(x))
         x = self.relu(self.hidden2(x))
         x = self.relu(self.hidden3(x))
@@ -71,10 +80,22 @@ class NN_model(nn.Module):
 
 def convert_data(size=16):
     '''reading data from the file'''
-    df = pd.read_excel(fp,usecols="A,C:H")
+    df = pd.read_excel(fp,usecols="A,C:I")
     n = int(LUT * percentage)
     
-    x = df.drop(columns="count")    # taking all but the target as inputs
+    # Add this: ensure holiday exists and is processed
+    df['holiday'] = df['holiday'].fillna('').str.lower().str.split(', ')
+    df['holiday'] = df['holiday'].apply(lambda x: [h.strip() for h in x if h.strip()])
+    all_holidays = sorted(set(h for sublist in df['holiday'] for h in sublist if h))
+    holiday_encoder = LabelEncoder().fit(all_holidays)
+    df['holiday_encoded'] = df['holiday'].apply(lambda x: holiday_encoder.transform(x).tolist() if x else [])
+
+    # Pad holiday lists to fixed length (optional: tune max_holidays)
+    max_holidays = max(len(h) for h in df['holiday_encoded'])
+    padded_holidays = [h + [0] * (max_holidays - len(h)) for h in df['holiday_encoded']]
+    holiday_tensor = torch.tensor(padded_holidays, dtype=torch.long)    
+
+    x = df.drop(columns=["count", "holiday", "holiday_encoded"])    # taking all but the target as inputs
     x['date'] = x["date"].dt.day_of_year    # converting dates to day of the year
     global date
     date = x["date"][LUT]
@@ -82,21 +103,22 @@ def convert_data(size=16):
     for column in x.columns: 
         x[column] = x[column]  / x[column].abs().max() 
     y = df["count"]         # target values
-    # y = np.array(y/y.max(), dtype=np.float32)    #normalizing target values
+
     # splitting data to train on bottom 85% and test the rest
-    x_train, x_test = x.iloc[:n], x.iloc[n:LUT]
-    y_train, y_test = y[:n], y[n:LUT]
-    x_pred = x.iloc[LUT:]
-    y_pred = y[LUT:]
+    x_train, x_test, x_pred = x.iloc[:n], x.iloc[n:LUT], x.iloc[LUT:]
+    y_train, y_test, y_pred = y[:n], y[n:LUT], y[LUT:]
+    h_train, h_test, h_pred = holiday_tensor[:n], holiday_tensor[n:LUT], holiday_tensor[LUT:]
+
     # converting dataframe to tensors and moving to proper device for max efficiency
     X_train, X_test = torch.tensor(x_train.values, dtype=torch.float32).to(device), torch.tensor(x_test.values, dtype=torch.float32).to(device)
     Y_train, Y_test = torch.as_tensor(y_train.values, dtype=torch.float32).unsqueeze(1).to(device), torch.as_tensor(y_test.values, dtype=torch.float32).unsqueeze(1).to(device)
     X_pred, Y_pred = torch.tensor(x_pred.values, dtype=torch.float32).to(device), torch.as_tensor(y_pred.values, dtype=torch.float32).unsqueeze(1).to(device)
+    H_train, H_test, H_pred = h_train.to(device), h_test.to(device), h_pred.to(device)
 
     # converting tensor to tensordataset
-    train_data = TensorDataset(X_train, Y_train)
-    test_data = TensorDataset(X_test, Y_test)
-    pred_data = TensorDataset(X_pred, Y_pred)
+    train_data = TensorDataset(X_train, H_train, Y_train)
+    test_data = TensorDataset(X_test, H_test, Y_test)
+    pred_data = TensorDataset(X_pred, H_pred, Y_pred)
 
     # converting tensordataset to dataloader
     train_loader = DataLoader(train_data, batch_size=size, shuffle=True)
@@ -141,11 +163,11 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0
-        for data, target in train_loader:
-            data, target = data.to(device), target.to(device)
+        for data, holiday ,target,  in train_loader:
+            data, holiday, target = data.to(device), holiday.to(device), target.to(device)
             optimizer.zero_grad()
             # prediction on batch data
-            predicted = model(data)  
+            predicted = model(data, holiday)  
             # compute loss and gradient
             loss = loss_fn(predicted, target)   
             loss.backward()
@@ -178,10 +200,10 @@ def test(model, loss_fn, test_loader):
     with torch.no_grad():
         # print("predicted vs. actual  difference") 
         # print(f"predicted\ttarget\tdifference")            
-        for data, target in test_loader:
-            data, target = data.to(device), target.to(device)
+        for data, holiday, target in test_loader:
+            data, holiday, target = data.to(device), holiday.to(device) ,target.to(device)
             # predict values
-            predicted = model(data)
+            predicted = model(data, holiday)
 
             for i in range(len(predicted)):
                 p = int(predicted[i])
@@ -189,7 +211,6 @@ def test(model, loss_fn, test_loader):
                 # if abs(p-a) <= correctness:
                 #     print(f"{p}\t\t{a}\t{abs(p-a)}")
                 # print(f"{p}\t\t{a}\t{abs(p-a)}")
-                
             # compute loss
             loss = loss_fn(predicted, target)
             tot_loss += loss.item()
@@ -211,10 +232,10 @@ def predict(model, pred_loader):
     idx = 0
     with torch.no_grad():
         print("predicting....")
-        for data, target in pred_loader:
-            data = data.to(device)
+        for data, holiday, _ in pred_loader:
+            data, holiday = data.to(device), holiday.to(device)
             # print(data)
-            predicted = model(data)
+            predicted = model(data, holiday)
             for i in range(len(predicted)):
                 p = int(predicted[i])
                 day = int(date+i+32*idx)
@@ -249,7 +270,7 @@ def main():
     loss_fn = nn.L1Loss()
     # for i in range(7):
         # print(f"run {i+1}",end="",flush=True)
-    model = NN_model(input_dim=len(train_loader))
+    model = NN_model()
     optimizer = optim.Adam(params=model.parameters(), lr=0.05)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
 
