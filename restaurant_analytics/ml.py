@@ -43,8 +43,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 32  # use either b=64/c=32 or b=32/c=4
-c = 4  # 64x32 for weekday. 32x4 for weekend
+b = 64  # use either b=64/c=32 or b=32/c=4
+c =32  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
@@ -101,7 +101,7 @@ def convert_data(size=16):
     date = x["date"][LUT]
 
     for column in x.columns: 
-        x[column] = x[column]  / x[column].abs().max() 
+        x[column] = (x[column] - x[column].mean()) / x[column].std() 
     y = df["count"]         # target values
 
     # splitting data to train on bottom 85% and test the rest
@@ -130,7 +130,8 @@ def convert_data(size=16):
 
 
 def future_data(size=16):
-    ''' turns future data to dataloader to pass throught the 
+    ''' This function is no longer needed this is implemented in the convert_data function
+        turns future data to dataloader to pass throught the 
         model and give a prediction on the expected covers'''
     # converting prediction file to dataframe
     df = pd.read_excel(pred_file,usecols="A,C:H")
@@ -260,40 +261,26 @@ def plot_losses(epochs, loss_arr):
 
 def main():
     batch_size = 32
-    # run_train_loss = []
-    # run_test_loss = []
-    # run_accuracy = []
 
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
+
     num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 1500.
     loss_fn = nn.L1Loss()
-    # for i in range(7):
-        # print(f"run {i+1}",end="",flush=True)
     model = NN_model()
     optimizer = optim.Adam(params=model.parameters(), lr=0.05)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
 
-        # training the model
+    # training the model
     train_losses = train(model,optimizer, loss_fn, train_loader, num_epochs, scheduler=scheduler)
-        # run_train_loss.append(round(np.average(train_losses),2))
-        #testing the model
+    #testing the model
     test_loss, acc = test(model, loss_fn, test_loader)
-        # run_test_loss.append(round(test_loss,2))
-        # run_accuracy.append(round((acc*100),2))
-    # print("trained and tested model several times. results are in")
-    # print("train losses:")
-    # print(run_train_loss)
-    # print("test losses")
-    # print(run_test_loss)
-    # print("accuracies:")
-    # print(run_accuracy)
+
 
     # plotting losses
     # plot_losses(num_epochs, train_losses)
 
-    # read data and make a prediction
-    # future_loader = future_data(batch_size)
+    # predicting with model
     predict(model, future_loader)
 
 

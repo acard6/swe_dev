@@ -5,7 +5,7 @@ This read me is to compile notes as a go along my journey of fine tuning my mode
 First and foremost I plan to eventually feed in the data relating to holidays/special observances/ sporting events/ religious events in to my model to help increase accuracy.
 
 ## NLP
-I plan on figuring out the best method to convert a set of words to a real number to be able have my model parse things. Hopefully this addition and the bug fixing to ensure it properly works will help in the models sense of accuracy and increase predictions. At the moment there is nothing concrete set for how to go about this however, I am currently considering a bag of words or frequency as a way. They main thing is that i have to considered the uniqueness of the word and if two different groups are connected to one entry. Much to consider for now I will update when I come closer to a solution i like and feel suits this project best.
+**[NOTE: This has been added in. please remove/edit this part future me]**I plan on figuring out the best method to convert a set of words to a real number to be able have my model parse things. Hopefully this addition and the bug fixing to ensure it properly works will help in the models sense of accuracy and increase predictions. At the moment there is nothing concrete set for how to go about this however, I am currently considering a bag of words or frequency as a way. They main thing is that i have to considered the uniqueness of the word and if two different groups are connected to one entry. Much to consider for now I will update when I come closer to a solution i like and feel suits this project best.
 
 
 # Current notes
@@ -36,7 +36,7 @@ the training-data% tab contains the testing to find the best training data amoun
 # About the files
 
 ## Ml.py
-
+This file **WILL** be broken down into more files at a later date to be able to fully document and navigate everything it contains
 
 ## extra_data.py
 Extra_data is used for gathering and parsing additional outside data that is then tuned for the models inputs or parameters. It contains a way to retrieve weather information, both forecast and historical. This in turn is added the data file for ease of use in the model.The file aslo gathers holiday info that was used to also feed into the model, however the actual implementation of that is still up in the air. The last major thing this file includes is it houses the PCA for the data that was used to determine the minimization of inputs to create a higher accuracy when using certain parameters
@@ -48,3 +48,4 @@ FFT_analysis was a file to help use Fourier analysis to help in predicting value
 Render is a simple file that helps vizualize all the data into different ways to see how data is changing. The images are then saved and stored in the image folder to be able to review in futrure cases. This is also where much of the values for output.txt come from given that output is just the text file version of all the images plus some other additional information 
 
 ## other files
+additional files are supplementary. text goes here
