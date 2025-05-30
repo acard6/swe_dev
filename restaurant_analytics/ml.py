@@ -32,7 +32,7 @@ elif time == "weekday":
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 431     # total amount of values to look at
+    LUT = 433     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
@@ -43,8 +43,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 year = 2025
 a = 256
-b = 64  # use either b=64/c=32 or b=32/c=4
-c =32  # 64x32 for weekday. 32x4 for weekend
+b = 32  # use either b=64/c=32 or b=32/c=4
+c = 4  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
@@ -244,6 +244,8 @@ def predict(model, pred_loader):
                 res = res.strftime("%m/%d/%Y")
                 # res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
                 print(f"{res}: {p:<3}")
+                # print(f"{p:<3}")
+
             idx += 1
             # compute loss
 
@@ -268,7 +270,7 @@ def main():
     num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 1500.
     loss_fn = nn.L1Loss()
     model = NN_model()
-    optimizer = optim.Adam(params=model.parameters(), lr=0.05)
+    optimizer = optim.Adam(params=model.parameters(), lr=0.05, weight_decay=1e-5)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
 
     # training the model
