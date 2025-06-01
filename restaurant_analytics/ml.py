@@ -18,7 +18,8 @@ from sklearn.preprocessing import LabelEncoder
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = ""
+time = "morning"
+start = 0
 percentage = 0.85               # % of data to use as training
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -29,10 +30,16 @@ elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
     LUT = 307     #sun-thur
     correctness = 10
+
+elif time == "morning":
+    file_name = cd+"\\mornings.xlsx"
+    LUT = 436     #sun-thur
+    correctness = 5
+    start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 433     # total amount of values to look at
+    LUT = 436     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
@@ -105,10 +112,9 @@ def convert_data(size=16):
     y = df["count"]         # target values
 
     # splitting data to train on bottom 85% and test the rest
-    x_train, x_test, x_pred = x.iloc[:n], x.iloc[n:LUT], x.iloc[LUT:]
-    y_train, y_test, y_pred = y[:n], y[n:LUT], y[LUT:]
-    h_train, h_test, h_pred = holiday_tensor[:n], holiday_tensor[n:LUT], holiday_tensor[LUT:]
-
+    x_train, x_test, x_pred = x.iloc[start:n], x.iloc[n:LUT], x.iloc[LUT:]
+    y_train, y_test, y_pred = y[start:n], y[n:LUT], y[LUT:]
+    h_train, h_test, h_pred = holiday_tensor[start:n], holiday_tensor[n:LUT], holiday_tensor[LUT:]
     # converting dataframe to tensors and moving to proper device for max efficiency
     X_train, X_test = torch.tensor(x_train.values, dtype=torch.float32).to(device), torch.tensor(x_test.values, dtype=torch.float32).to(device)
     Y_train, Y_test = torch.as_tensor(y_train.values, dtype=torch.float32).unsqueeze(1).to(device), torch.as_tensor(y_test.values, dtype=torch.float32).unsqueeze(1).to(device)
@@ -243,8 +249,8 @@ def predict(model, pred_loader):
                 res = datetime(year,1,1) + timedelta(days=day-1)
                 res = res.strftime("%m/%d/%Y")
                 # res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
-                print(f"{res}: {p:<3}")
-                # print(f"{p:<3}")
+                # print(f"{res}: {p:<3}")
+                print(f"{p:<3}")
 
             idx += 1
             # compute loss
