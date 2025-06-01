@@ -13,9 +13,9 @@ First and foremost I plan to eventually feed in the data relating to holidays/sp
 ## model tuning
 ### This is a giant overview on my findings after running the model throught a few test to summarize how to best run the model(for deeper analysis it can be found in [finding on testing](#findings-on-testing))
 
-As it currently stands the models parameters work best with 3 hidden layers, input layer -> 256 -> a -> b -> 1, where a and b are either the pair(64,32) or (32,4). The model can be split to test, train, and predict in 3 different ways -- Weekend, Weekday, and Total data -- to be able to achieve better results on certain areas. 
+As it currently stands the models parameters work best with 3 hidden layers, input layer -> 256 -> a -> b -> 1, where a and b are either the pair(64,32) or (32,4). The model can be split to test, train, and predict in 4 different ways -- Weekend, Weekday, Mornings, and Total data -- to be able to achieve better results on certain areas. 
 
-It is typically set that when working with the weekday and total data to use the parameters of input x 256 x 64 x 32 x 1 or more simply 64x32 at 80-85% training and epochs to be set to 1000. Meanwhile the weekend data is typically better at a 32x4 with 75-85% training data with epochs set to 1000-2000(1000 or 1500 seems to work well). 
+It is typically set that when working with the weekday and total data to use the parameters of input x 256 x 64 x 32 x 1 or more simply 64x32 at 80-85% training and epochs to be set to 1000. Meanwhile the weekend data is typically better at a 32x4 with 75-85% training data with epochs set to 1000-2000(1000 or 1500 seems to work well). For Morning data it is best to use a 32x4 parameters with 85% training data.
 
 Each one of the three data partitions has a baseline as to how off is can be from the predicted value to be considered correct. At the moment both weekday and total is set to be |y_pred - y_actual| < 10, and weekend is |difference|<15. This is mainly do to the fact that the overall data and weekday tend to have smaller values while weekend has typical values that are 3x that of weekday.
 

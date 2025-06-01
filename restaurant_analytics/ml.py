@@ -18,9 +18,8 @@ from sklearn.preprocessing import LabelEncoder
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = "morning"
+time = ""
 start = 0
-percentage = 0.85               # % of data to use as training
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
     LUT = 124     # fri-sat
@@ -48,10 +47,11 @@ pred_file = os.path.join(cd, pred_file_name)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
+percentage = 0.85               # % of data to use as training
 year = 2025
 a = 256
-b = 32  # use either b=64/c=32 or b=32/c=4
-c = 4  # 64x32 for weekday. 32x4 for weekend
+b = 64  # use either b=64/c=32 or b=32/c=4
+c = 32  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
