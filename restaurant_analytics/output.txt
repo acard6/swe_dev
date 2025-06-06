@@ -56,24 +56,29 @@ week 53: 490
 week 54: 454
 week 55: 538
 week 56: 661
-week 57: 440
+week 57: 632
+week 58: 577
+week 59: 881
+week 60: 619
+week 61: 598
+week 62: 679
 
 data per given day
-Sunday: 61.53
-Monday: 52.38
-Tuesday: 62.21
-Wednesday: 65.44
-Thursday: 75.05
-Friday: 149.29
-Saturday: 172.57
+Sunday: 65.59
+Monday: 52.17
+Tuesday: 62.49
+Wednesday: 66.44
+Thursday: 74.75
+Friday: 148.54
+Saturday: 173.75
 
 average data per given month
 January: 76.10
 February: 82.75
 March: 69.49
-April: 80.97
-May: 93.84
-June: 95.97
+April: 80.53
+May: 95.92
+June: 92.89
 July: 111.19
 August: 111.32
 September: 105.30
@@ -86,13 +91,13 @@ January-Friday          138.60
 January-Saturday        179.00
 February-Friday         172.50
 February-Saturday       182.50
-April-Saturday          156.12
-May-Friday              159.40
-May-Sunday              94.75
+May-Friday              149.70
+May-Saturday            171.44
+May-Sunday              95.25
 June-Friday             168.00
 July-Thursday           116.00
 July-Friday             172.25
-July-Saturday           198.25
+July-Saturday           197.00
 August-Thursday         110.60
 August-Friday           177.80
 August-Saturday         184.80
@@ -117,7 +122,7 @@ January-Wednesday       48.20
 January-Thursday        53.40
 January-Friday          138.60
 January-Saturday        179.00
-January-Sunday          45.25
+January-Sunday          44.50
 February-Monday         39.50
 February-Tuesday        42.25
 February-Wednesday      44.75
@@ -129,36 +134,36 @@ March-Monday            35.17
 March-Tuesday           56.60
 March-Wednesday         46.80
 March-Thursday          54.40
-March-Friday            87.67
-March-Saturday          140.00
+March-Friday            87.50
+March-Saturday          140.86
 March-Sunday            48.29
 April-Monday            52.33
-April-Tuesday           66.67
-April-Wednesday         60.25
-April-Thursday          62.12
+April-Tuesday           67.70
+April-Wednesday         60.11
+April-Thursday          61.50
 April-Friday            128.88
 April-Saturday          156.12
 April-Sunday            46.38
-May-Monday              54.75
-May-Tuesday             47.00
-May-Wednesday           62.60
-May-Thursday            81.20
-May-Friday              159.40
-May-Saturday            151.75
-May-Sunday              94.75
-June-Monday             72.00
-June-Tuesday            59.75
-June-Wednesday          72.50
-June-Thursday           74.50
+May-Monday              58.57
+May-Tuesday             55.88
+May-Wednesday           62.44
+May-Thursday            72.60
+May-Friday              149.70
+May-Saturday            171.44
+May-Sunday              95.25
+June-Monday             65.20
+June-Tuesday            58.80
+June-Wednesday          69.00
+June-Thursday           82.80
 June-Friday             168.00
 June-Saturday           145.60
-June-Sunday             72.80
-July-Monday             74.80
+June-Sunday             78.67
+July-Monday             78.80
 July-Tuesday            76.60
-July-Wednesday          71.20
+July-Wednesday          89.80
 July-Thursday           116.00
 July-Friday             172.25
-July-Saturday           198.25
+July-Saturday           197.00
 July-Sunday             70.00
 August-Monday           59.25
 August-Tuesday          63.75
@@ -173,7 +178,7 @@ September-Wednesday     96.25
 September-Thursday      95.50
 September-Friday        164.25
 September-Saturday      199.25
-September-Sunday        54.40
+September-Sunday        69.40
 October-Monday          32.00
 October-Tuesday         47.80
 October-Wednesday       61.00

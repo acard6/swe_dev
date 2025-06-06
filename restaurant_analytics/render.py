@@ -150,6 +150,7 @@ def print_monthly_average(input):
 
 
 def main():
+	days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 	d = weekly_total()
 	# print_weekly_data(d)
 
@@ -161,7 +162,9 @@ def main():
 		out = np.sum(val)/len(val)
 		A[key] = out
 		# print("{}: {:.2f}".format(key,out) )
-	# print_daily_data(a, selected_day='Monday')	# prints a line graph for each given day
+	
+	# for i in days:
+	# 	print_daily_data(a, selected_day=i)	# prints a line graph for each given day
 	# print_daily_all(a)	# prints all the days on the same graph
 	# print_daily_average(A)	# prints bar graph of daily averages
 
@@ -174,11 +177,11 @@ def main():
 		B[key] = val/b_tot_days[key]
 		
 		# print("{}: {:.2f}".format(key,B[key]))
-	print_monthly_average(B)		
+	# print_monthly_average(B)		
 
 	c = month_day_joint()
 	#day-month combo that exceeds daily & month avg  
-	if False:
+	if True:
 		print("joint data for given month and day")
 		for i in range(len(c)):	# for month
 			for j in range(len(c[0])):	 # for day of week
@@ -188,10 +191,10 @@ def main():
 				margin_1 = bool(avg-A[day] > -10)
 				margin_2 = bool(avg-B[month] > -10)
 				str = f"{month}-{day}"
-				print( f"{str:<19}\t{avg:.2f}" ) # uncomment to print total joint data
+				# print( f"{str:<19}\t{avg:.2f}" ) # uncomment to print total joint data
 
-				# if margin_1 and margin_2:			# uncomment to print joint data grater than averages
-				# 	print( f"{str:<19}\t{avg:.2f}" )
+				if margin_1 and margin_2:			# uncomment to print joint data grater than averages
+					print( f"{str:<19}\t{avg:.2f}" )
 
 				# if month == "December":						# uncomment to print joint data of certain month
 				# 	print( f"{str:<19}\t{avg:.2f}" )
