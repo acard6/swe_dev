@@ -18,27 +18,27 @@ from sklearn.preprocessing import LabelEncoder
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = ""
+time = "morning"
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 124     # fri-sat
+    LUT = 126     # fri-sat
     correctness = 15
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 307     #sun-thur
+    LUT = 315     #sun-thur
     correctness = 10
 
 elif time == "morning":
     file_name = cd+"\\mornings.xlsx"
-    LUT = 436     #sun-thur
+    LUT = 441     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 436     # total amount of values to look at
+    LUT = 441     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
