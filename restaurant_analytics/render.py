@@ -148,11 +148,47 @@ def print_monthly_average(input):
 	plt.savefig(img_pth)
 	plt.show()
 
+def plot_all():
+	img_pth = os.path.join(cd,"images/total.png")
+	df = pd.read_excel(fp, usecols="D",)
+	series = pd.Series(df['count'])
+	plt.figure(figsize=(15,5))
+	series.plot()
+	plt.title("covers since open")
+	plt.xlabel("Index")
+	plt.ylabel("covers")
+	plt.grid(True)
+	plt.savefig(img_pth)
+	# Show the plot
+	plt.show()
+
+
+def run_tot():
+	# img_pth = os.path.join(cd,"images/run_tot.png")
+	df = pd.read_excel(fp, usecols="D",)
+	data = np.zeros(len(df['count']))
+	data[0] = df['count'][0]
+	for i in range(1,len(df["count"])):
+		data[i] = data[i-1]+df["count"][i]
+
+
+	plt.figure(figsize=(15,5))
+	plt.plot(data)
+	plt.title("running total")
+	plt.xlabel("Index")
+	plt.ylabel("total covers")
+	plt.grid(True)
+	# plt.savefig(img_pth)
+	# Show the plot
+	plt.show()
 
 def main():
 	days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 	d = weekly_total()
 	# print_weekly_data(d)
+
+	# plot_all()
+	run_tot()
 
 	A = {}
 	a = days_of_week()
@@ -181,7 +217,7 @@ def main():
 
 	c = month_day_joint()
 	#day-month combo that exceeds daily & month avg  
-	if True:
+	if False:
 		print("joint data for given month and day")
 		for i in range(len(c)):	# for month
 			for j in range(len(c[0])):	 # for day of week
