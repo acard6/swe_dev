@@ -18,7 +18,7 @@ from sklearn.preprocessing import LabelEncoder
 # print(torch.__version__)
 
 cd = os.path.dirname(os.path.abspath(__file__))
-time = "morning"
+time = ""
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -30,15 +30,15 @@ elif time == "weekday":
     LUT = 315     #sun-thur
     correctness = 10
 
-elif time == "morning":
+elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 441     #sun-thur
+    LUT = 446     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 441     # total amount of values to look at
+    LUT = 446     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
@@ -69,6 +69,7 @@ class NN_model(nn.Module):
         self.hidden3 = nn.Linear(b,c)
         self.out = nn.Linear(c,output_dim)
         self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, x, holiday_id):
         hol_embed = self.embedding(holiday_id)
@@ -78,7 +79,8 @@ class NN_model(nn.Module):
 
         x = self.relu(self.hidden1(x))
         x = self.relu(self.hidden2(x))
-        x = self.relu(self.hidden3(x))
+        
+        x = self.dropout(self.relu(self.hidden3(x)))
         # x = self.relu(self.hidden4(x))
         x = self.out(x)
 
