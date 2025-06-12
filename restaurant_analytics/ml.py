@@ -32,13 +32,13 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 446     #sun-thur
+    LUT = 447     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 446     # total amount of values to look at
+    LUT = 447     # total amount of values to look at
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
@@ -53,9 +53,13 @@ a = 256
 b = 64  # use either b=64/c=32 or b=32/c=4
 c = 32  # 64x32 for weekday. 32x4 for weekend
 d = 1
+
+
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
-print(f"b: {b}, c: {c}, time scale: {time}, trainging on {percentage*100:.0f}% data")
+print(f"b: {b}, c: {c}, file used: {time}, trainging on {percentage*100:.0f}% data")
+
+
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
     def __init__(self, input_dim=6, output_dim=1, num_hol=30,embed_dim=8):
