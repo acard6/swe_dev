@@ -188,7 +188,7 @@ def main():
 	# print_weekly_data(d)
 
 	# plot_all()
-	run_tot()
+	# run_tot()
 
 	A = {}
 	a = days_of_week()

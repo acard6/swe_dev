@@ -51,7 +51,7 @@ week 48: 593
 week 49: 549
 week 50: 541
 week 51: 608
-week 52: 518
+week 52: 517
 week 53: 490
 week 54: 454
 week 55: 538
@@ -62,15 +62,20 @@ week 59: 881
 week 60: 619
 week 61: 598
 week 62: 679
+week 63: 673
+week 64: 697
+week 65: 629
+week 66: 803
+week 67: 150
 
 data per given day
-Sunday: 65.59
-Monday: 52.17
-Tuesday: 62.49
-Wednesday: 66.44
-Thursday: 74.75
-Friday: 148.54
-Saturday: 173.75
+Sunday: 65.94
+Monday: 53.15
+Tuesday: 63.24
+Wednesday: 65.97
+Thursday: 76.96
+Friday: 145.81
+Saturday: 173.53
 
 average data per given month
 January: 76.10
@@ -78,8 +83,8 @@ February: 82.75
 March: 69.49
 April: 80.53
 May: 95.92
-June: 92.89
-July: 111.19
+June: 96.08
+July: 107.92
 August: 111.32
 September: 105.30
 October: 87.58
@@ -94,10 +99,11 @@ February-Saturday       182.50
 May-Friday              149.70
 May-Saturday            171.44
 May-Sunday              95.25
-June-Friday             168.00
-July-Thursday           116.00
+June-Thursday           90.50
+June-Friday             153.62
+July-Thursday           120.20
 July-Friday             172.25
-July-Saturday           197.00
+July-Saturday           187.60
 August-Thursday         110.60
 August-Friday           177.80
 August-Saturday         184.80
@@ -151,19 +157,19 @@ May-Thursday            72.60
 May-Friday              149.70
 May-Saturday            171.44
 May-Sunday              95.25
-June-Monday             65.20
-June-Tuesday            58.80
-June-Wednesday          69.00
-June-Thursday           82.80
-June-Friday             168.00
-June-Saturday           145.60
-June-Sunday             78.67
+June-Monday             66.67
+June-Tuesday            64.00
+June-Wednesday          63.75
+June-Thursday           90.50
+June-Friday             153.62
+June-Saturday           159.11
+June-Sunday             75.80
 July-Monday             78.80
-July-Tuesday            76.60
-July-Wednesday          89.80
-July-Thursday           116.00
+July-Tuesday            77.50
+July-Wednesday          86.33
+July-Thursday           120.20
 July-Friday             172.25
-July-Saturday           197.00
+July-Saturday           187.60
 July-Sunday             70.00
 August-Monday           59.25
 August-Tuesday          63.75
