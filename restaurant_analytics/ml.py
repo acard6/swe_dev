@@ -12,52 +12,58 @@ from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from sklearn.preprocessing import LabelEncoder
+import random
 
 
 
-# print(torch.__version__)
-
+############################### opening up the necesasry file ############################
 cd = os.path.dirname(os.path.abspath(__file__))
 time = ""
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 126     # fri-sat
+    LUT = 134     # fri-sat
     correctness = 15
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 315     #sun-thur
+    LUT = 332     #sun-thur
     correctness = 10
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 447     #sun-thur
+    LUT = 472     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 447     # total amount of values to look at
+    LUT = 476     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
 pred_file_name = cd + "\\predictions.xlsx"
 pred_file = os.path.join(cd, pred_file_name)
+############################### EOL ############################
 
+
+############################### global var ############################
+file_len = 0   #length of the total file
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
-percentage = 0.85               # % of data to use as training
+# percentage = 0.84               # % of data to use as training
+percentage = round(random.uniform(0.73,0.87),2)
+dropout = round(random.uniform(0.2,0.5),2)
 year = 2025
 a = 256
 b = 64  # use either b=64/c=32 or b=32/c=4
 c = 32  # 64x32 for weekday. 32x4 for weekend
 d = 1
-
+############################### EOL ############################
 
 ''' when analyzing sunday-thursday data consider using the parameter of b=64 and c=32 as it appropriates closer to overall data average 
     amongst the different possible parameters used'''
-print(f"b: {b}, c: {c}, file used: {time}, trainging on {percentage*100:.0f}% data")
+print(f"b: {b}, c: {c}, file used: {time}, trainging on {percentage*100:.0f}% data, dropout{dropout}")
 
 
 class NN_model(nn.Module):
@@ -73,7 +79,7 @@ class NN_model(nn.Module):
         self.hidden3 = nn.Linear(b,c)
         self.out = nn.Linear(c,output_dim)
         self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, holiday_id):
         hol_embed = self.embedding(holiday_id)
@@ -110,8 +116,10 @@ def convert_data(size=16):
 
     x = df.drop(columns=["count", "holiday", "holiday_encoded"])    # taking all but the target as inputs
     x['date'] = x["date"].dt.day_of_year    # converting dates to day of the year
-    global date
+    global date, file_len
     date = x["date"][LUT]
+    file_len = len(x['date'])   #the number of rows in the total file
+
 
     for column in x.columns: 
         x[column] = (x[column] - x[column].mean()) / x[column].std() 
@@ -137,7 +145,7 @@ def convert_data(size=16):
     test_loader = DataLoader(test_data, batch_size=size, shuffle=False)
     pred_loader = DataLoader(pred_data, batch_size=size, shuffle=False)
 
-    print("successfully converted data to tensor")
+    # print("successfully converted data to tensor")
     return train_loader, test_loader, pred_loader 
 
 
@@ -163,12 +171,12 @@ def future_data(size=16):
     print("prediction file converted to DataLoader")
     return pred_loader
 
-
+  
 def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     '''time to train the model on the data'''
     model.to(device)
 
-    print("Analyzing data with the model:")
+    # print("Analyzing data with the model:")
     # simple set up of variables
     num_epochs = epochs
     losses = []
@@ -188,18 +196,20 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
             optimizer.step()
             running_loss += loss.item()
         if epoch%250 == 0:
-            # print("",end=".",flush=True)
+        #     print("",end=".",flush=True)
             print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
         losses.append(running_loss / len(train_loader))
 
         if scheduler != None:
             scheduler.step()
-    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
+    # print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
     # print(f"{data}\n{target}")
-    print(f"Average loss on training: {np.average(losses):.2f}")
-    # print(".",end="\n")
-    torch.save(model.state_dict(), "\\weights.pth")
-    return losses   #returns an array of losses over epochs with "epochs" elements inside
+    avg = np.average(losses)
+    # print(f"Average loss on training: {avg:.2f}")
+    # print(".",end="\n")\
+    output = os.path.join(cd, "weights.pth")
+    torch.save(model.state_dict(), output)
+    return avg   #returns an array of losses over epochs with "epochs" elements inside
 
 
 def test(model, loss_fn, test_loader):
@@ -233,8 +243,8 @@ def test(model, loss_fn, test_loader):
     average_loss = tot_loss / len(test_loader)
     accuracy = correct / samples
 
-    print(f'Average Loss on testing: {average_loss:.2f}')
-    print(f'Accuracy: {accuracy * 100:.2f}%')
+    # print(f'Average Loss on testing: {average_loss:.2f}')
+    # print(f'Accuracy: {accuracy * 100:.2f}%')
     return average_loss, accuracy   #returns float for average loss and accuracy during this test
 
 
@@ -242,24 +252,32 @@ def predict(model, pred_loader):
     '''predict on future days'''
     model.eval()
     # predefine some variables for testing
+    pred_arr = []   # array of my prediction to be passed to other functions
+
     idx = 0
     with torch.no_grad():
-        print("predicting....")
+        # print("predicting....")
         for data, holiday, _ in pred_loader:
             data, holiday = data.to(device), holiday.to(device)
             # print(data)
             predicted = model(data, holiday)
-            for i in range(len(predicted)):
-                p = int(predicted[i])
-                day = int(date+i+32*idx)
-                res = datetime(year,1,1) + timedelta(days=day-1)
-                res = res.strftime("%m/%d/%Y")
-                # res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
-                # print(f"{res}: {p:<3}")
-                print(f"{p:<3}")
+            pred_arr.append(predicted.cpu().numpy())
+         
+            # for i in range(len(predicted)):
+            #     p = int(predicted[i])   #predicted value
+            #     day = int(date+i+32*idx)
+            #     res = datetime(year,1,1) + timedelta(days=day-1)
+            #     res = res.strftime("%m/%d/%Y")
+            #     # res = datetime.strptime(year + "-" + day, "%Y-%j").strftime("%m/%d/%Y")
+            #     # print(f"{res}: {p:<3}")
+            #     print(f"{p:<3}")
+            # idx += 1
 
-            idx += 1
-            # compute loss
+
+
+    final_pred = np.concatenate(pred_arr, axis=0)
+    final_pred = final_pred.flatten()
+    return final_pred
 
 
 def plot_losses(epochs, loss_arr):
@@ -273,13 +291,13 @@ def plot_losses(epochs, loss_arr):
     plt.show()
 
 
-def main():
-    batch_size = 32
+def activate_model(batch_size=32,num_epochs=1000,):
+    # batch_size = 32
 
     # inputs for the model to use to operate
     train_loader, test_loader, future_loader = convert_data(batch_size)
 
-    num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 1500.
+    # num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 1500.
     loss_fn = nn.L1Loss()
     model = NN_model()
     optimizer = optim.Adam(params=model.parameters(), lr=0.05, weight_decay=1e-5)
@@ -295,10 +313,13 @@ def main():
     # plot_losses(num_epochs, train_losses)
 
     # predicting with model
-    predict(model, future_loader)
+    prediction = predict(model, future_loader)
+    return train_losses, test_loss, acc, prediction
 
 
 
 
-if __name__ == "__main__":
-	main()
+# def main():
+#     run_ml(32,1000)
+# if __name__ == "__main__":
+# 	main()
