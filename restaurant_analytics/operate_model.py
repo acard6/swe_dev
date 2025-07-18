@@ -41,9 +41,11 @@ def main():
             val += pred[col][row]
         print( round(val/l) )
 
-    print(f"{avg_acc:.2f}\t :avg accuracy")
-    print(f"{avg_tt:.2f}\t :avg test loss")
-    print(f"{avg_tr:.2f}\t :avg train loss")
+    # print(f"{avg_acc:.2f}\t :avg accuracy")
+    print(f"{avg_acc:.2f}")
+    # print(f"{avg_tt:.2f}\t :avg test loss")
+    print(f"{avg_tt:.2f}")
+    # print(f"{avg_tr:.2f}\t :avg train loss")
 
 
 
