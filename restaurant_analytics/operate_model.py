@@ -6,17 +6,23 @@ import json
 
 
 def main():
+    # values for the model
     n = 10
+    batch_size = 32
+    epochs = 1000
 
+    # storing the output of the model to average things out
     tr_l = []
     tt_l = []
     acc =  []
     pred = []
 
-    start_time = time.time()
+    start_time = time.time()    # timer
+
+    train_loader, test_loader, future_loader = ml.convert_data(batch_size)  #preload the data once
     for i in range(n):
         print(f"starting model on test {i}....")
-        train_l, test_l, accuracy, prediction = ml.activate_model(32,1000)
+        train_l, test_l, accuracy, prediction = ml.activate_model(batch_size,epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader)
         tr_l.append(round(train_l,2))
         tt_l.append(round(test_l,2))
         acc.append(round(accuracy*100,2))
@@ -50,4 +56,4 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+    main()

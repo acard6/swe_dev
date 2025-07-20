@@ -18,7 +18,7 @@ import random
 
 ############################### opening up the necesasry file ############################
 cd = os.path.dirname(os.path.abspath(__file__))
-time = ""
+time = "morning"
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -32,7 +32,7 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 481     #sun-thur
+    LUT = 485     #sun-thur
     correctness = 5
     start = 44
     
@@ -291,11 +291,11 @@ def plot_losses(epochs, loss_arr):
     plt.show()
 
 
-def activate_model(batch_size=32,num_epochs=1000,):
+def activate_model(batch_size=32,num_epochs=1000, train_loader=None, test_loader=None, future_loader=None):
     # batch_size = 32
 
     # inputs for the model to use to operate
-    train_loader, test_loader, future_loader = convert_data(batch_size)
+    # train_loader, test_loader, future_loader = convert_data(batch_size)
 
     # num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 1500.
     loss_fn = nn.L1Loss()
