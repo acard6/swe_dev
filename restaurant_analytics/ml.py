@@ -18,7 +18,7 @@ import random
 
 ############################### opening up the necesasry file ############################
 cd = os.path.dirname(os.path.abspath(__file__))
-time = "morning"
+time = ""
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
