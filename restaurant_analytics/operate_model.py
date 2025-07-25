@@ -7,11 +7,11 @@ import json
 
 def main():
     # values for the model
-    n = 10
-    batch_size = 32
-    epochs = 1000
+    n = 10       # number of runs to be averaged out
+    epochs = 1000   # number of epochs in a single run
+    batch_size = 32 # data batch size
 
-    # storing the output of the model to average things out
+    # storing the output of the model to average things out at the end
     tr_l = []
     tt_l = []
     acc =  []
