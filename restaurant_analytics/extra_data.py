@@ -193,7 +193,7 @@ def main():
     # get_holidays()
    
     
-    start = datetime(2025, 7, 10)
+    start = datetime(2025, 7, 25)
     end = datetime(2025,8, 25)
     df = get_weather(start, end)
     print(df)

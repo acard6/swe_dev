@@ -18,7 +18,7 @@ import random
 
 ############################### opening up the necesasry file ############################
 cd = os.path.dirname(os.path.abspath(__file__))
-time = "morning"
+time = ""
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -32,13 +32,13 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 488     #sun-thur
+    LUT = 495     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 488     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 494     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
     
 fp = os.path.join(cd, file_name)
