@@ -22,12 +22,12 @@ time = ""
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
-    LUT = 134     # fri-sat
+    LUT = 144     # fri-sat
     correctness = 15
     
 elif time == "weekday":
     file_name = cd+"\\sun-thur.xlsx"
-    LUT = 332     #sun-thur
+    LUT = 358     #sun-thur
     correctness = 10
 
 elif time == "morning":#consider 80% training data for mornings
@@ -48,7 +48,6 @@ pred_file = os.path.join(cd, pred_file_name)
 
 
 ############################### global var ############################
-file_len = 0   #length of the total file
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 date = None
 # percentage = 0.84               # % of data to use as training
@@ -116,9 +115,8 @@ def convert_data(size=16):
 
     x = df.drop(columns=["count", "holiday", "holiday_encoded"])    # taking all but the target as inputs
     x['date'] = x["date"].dt.day_of_year    # converting dates to day of the year
-    global date, file_len
+    global date
     date = x["date"][LUT]
-    file_len = len(x['date'])   #the number of rows in the total file
 
 
     for column in x.columns: 
