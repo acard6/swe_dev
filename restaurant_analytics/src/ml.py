@@ -32,7 +32,7 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 502     #sun-thur
+    LUT = 512     #sun-thur
     correctness = 5
     start = 44
     
@@ -96,10 +96,10 @@ class NN_model(nn.Module):
         return x
 
 
-def convert_data(size=16):
+def convert_data(size=16, Percent=percentage):
     '''reading data from the file'''
     df = pd.read_excel(fp,usecols="A,C:I")
-    n = int(LUT * percentage)
+    n = int(LUT * Percent)
     
     # Add this: ensure holiday exists and is processed
     df['holiday'] = df['holiday'].fillna('').str.lower().str.split(', ')
@@ -144,7 +144,7 @@ def convert_data(size=16):
     pred_loader = DataLoader(pred_data, batch_size=size, shuffle=False)
 
     # print("successfully converted data to tensor")
-    return train_loader, test_loader, pred_loader 
+    return train_loader, test_loader, pred_loader   #returns a dataloader for the train, test, and prediction loader
 
 
 def future_data(size=16):
@@ -289,7 +289,7 @@ def plot_losses(epochs, loss_arr):
     plt.show()
 
 
-def activate_model(batch_size=32,num_epochs=1000, train_loader=None, test_loader=None, future_loader=None):
+def activate_model(num_epochs=1000, train_loader=None, test_loader=None, future_loader=None):
     # batch_size = 32
 
     # inputs for the model to use to operate

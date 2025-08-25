@@ -22,13 +22,24 @@ def main():
     train_loader, test_loader, future_loader = ml.convert_data(batch_size)  #preload the data once
     for i in range(n):
         print(f"starting model on test {i}....")
-        train_l, test_l, accuracy, prediction = ml.activate_model(batch_size,epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader)
+        train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader)
         tr_l.append(round(train_l,2))
         tt_l.append(round(test_l,2))
         acc.append(round(accuracy*100,2))
         pred.append([int(round(x,0)) for x in prediction])
         print(f"completed run {i}")
+
+
+    # train_loader, test_loader, future_loader = ml.convert_data(batch_size, Percent=1)  # use all data as training dont test then predict
+    # for i in range(n/2):
+    #     train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader)
+    #     tr_l.append(round(train_l,2))
+    #     tt_l.append(round(test_l,2))
+    #     acc.append(round(accuracy*100,2))
+    #     pred.append([int(round(x,0)) for x in prediction])
+    #     print(f"completed run {i+(n//2)}")
     end_time = time.time()
+
     print(f"elapsed time: {end_time-start_time:.3f} second for {n} runs")
 
     avg_tr = sum(tr_l)/len(tr_l)
