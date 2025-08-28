@@ -13,8 +13,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.linear_model import LinearRegression
 
 
-cd = os.path.dirname(os.path.abspath(__file__))
-file_name = cd+"\\predictions.xlsx"
+cd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+file_name = cd+"\\datas\predictions.xlsx"
 file = os.path.join(cd, file_name)
 
 
@@ -193,8 +193,8 @@ def main():
     # get_holidays()
    
     
-    start = datetime(2025, 8, 1)
-    end = datetime(2025,8, 31)
+    start = datetime(2025, 8, 15)
+    end = datetime(2025,9, 15)
     df = get_weather(start, end)
     print(df)
     

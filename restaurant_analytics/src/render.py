@@ -5,8 +5,8 @@ import calendar
 import json
 import matplotlib.pyplot as plt
 
-cd = os.path.dirname(os.path.abspath(__file__))
-file_name = cd+"\\covers_data.xlsx"
+cd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+file_name = cd+"\\data\covers_data.xlsx"
 fp = os.path.join(cd, file_name)
 
 
