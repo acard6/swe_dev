@@ -14,8 +14,8 @@ from datetime import datetime, timedelta
 from sklearn.preprocessing import LabelEncoder
 import random
 
-DROPOUT = round(random.uniform(0.2,0.5),2)      
-PERCENTAGE = round(random.uniform(0.73,0.87),2)
+DROPOUT = round(random.uniform(0.2,0.5),3)      
+PERCENTAGE = round(random.uniform(0.73,0.87),3)
 
 ############################### opening up the necesasry file ############################
 this_file = os.path.dirname( os.path.dirname(os.path.abspath(__file__)) )      # parent directory
@@ -41,7 +41,7 @@ elif time == "morning":#consider 80% training data for mornings
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 512     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 521     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)

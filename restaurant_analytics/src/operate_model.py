@@ -40,7 +40,7 @@ def weighted_ensemble(predictions, weights):
 
 def main():
     # values for the model
-    runs = 3       # number of runs to be averaged out
+    runs = 5       # number of runs to be averaged out
     epochs = 1000   # number of epochs in a single run
     batch_size = 32 # data batch size
     run_model_in_test = True
@@ -53,12 +53,12 @@ def main():
 
     run_normal = False 
     
-    run_expanding_window = True
+    run_expanding_window = False
     window_runs = 3
     
-    run_sliding_window = False
-    sliding_window_size = 90
-    FACTOR = 1            # 1-overlap%. how much of this data is independent from the following 
+    run_sliding_window = True
+    sliding_window_size = 30
+    FACTOR = 9/10            # 1-overlap%. how much of this data is independent from the following 
 
     '''
         Small window + small overlap: many independent short-term samples → may miss long-term trends.
@@ -101,15 +101,18 @@ def main():
     start_time = time.time()    # timer for the runs
 
         ############################## normal
-    if (run_normal):            
+    if (run_normal):
+        data_size = int(n* random.uniform(0.73,0.87))            
         train_loader =  ml.dataloader_subset(dataset, ml.start, data_size, batch_size, True)  
         test_loader =  ml.dataloader_subset(dataset, data_size, n, batch_size,)
+        ml.use_save()
         # print("Normal run")
         if test_loader == -1:
             run_model_in_test = False
         for i in range(runs):
+            dropout = round(random.uniform(0.2,0.5),3)
             print(f"starting model on test {i}....")
-            train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, test_mode=run_model_in_test)
+            train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, test_mode=run_model_in_test, dropout=dropout)
             tr_l.append(round(train_l,2))
             tt_l.append(round(test_l,2))
             acc.append(round(accuracy*100,2))
@@ -122,7 +125,7 @@ def main():
             ######################## expanding
 
     if (run_expanding_window):
-        dropout = round(random.uniform(0.2,0.5),2)    
+        dropout = round(random.uniform(0.2,0.5),3)    
         size = max(window_runs-1, 1)
         # print("starting expanding window")
         for i in range(window_runs):
@@ -148,7 +151,7 @@ def main():
         start = ml.start
         overlap = int(sliding_window_size*FACTOR)
         ml.use_save()
-        dropout = round(random.uniform(0.2,0.5),2)
+        dropout = round(random.uniform(0.2,0.5),3)
         for i in range(0,n,overlap):
             end = start + sliding_window_size + i
             if (start + sliding_window_size+i) > n:
@@ -164,8 +167,6 @@ def main():
             pred.append([int(round(x,0)) for x in prediction])
             tt_l.append(round(test_l,2))
             acc.append(round(accuracy*100,2))
-
-
 
     end_time = time.time()
     print(f"elapsed time: {end_time-start_time:.3f} second to run model")
@@ -198,8 +199,8 @@ def main():
 
 ######### new predicting
     final_pred = weighted_ensemble(pred_calc, weights)
-    for i in (final_pred.tolist()):
-        print(i)
+    # for i in (final_pred.tolist()):
+    #     print(i)
 
 if __name__ == "__main__":
     main()
