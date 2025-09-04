@@ -35,13 +35,13 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 512     #sun-thur
+    LUT = 528     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 521     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 518     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
@@ -256,7 +256,7 @@ def test(model, loss_fn, test_loader):
     tot_loss = 0
     with torch.no_grad():
         # print("predicted vs. actual  difference") 
-        # print(f"predicted\ttarget\tdifference")            
+        print(f"predicted\ttarget\tdifference")            
         for data, holiday, target in test_loader:
             data, holiday, target = data.to(device), holiday.to(device) ,target.to(device)
             # predict values
@@ -266,7 +266,7 @@ def test(model, loss_fn, test_loader):
                 p = int(predicted[i])
                 a = int(target[i])
                 # if abs(p-a) <= correctness:
-                #     print(f"{p}\t\t{a}\t{abs(p-a)}")
+                #    print(f"{p}\t\t{a}\t{abs(p-a)}")
                 # print(f"{p}\t\t{a}\t{abs(p-a)}")
             # compute loss
             loss = loss_fn(predicted, target)
