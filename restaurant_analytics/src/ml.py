@@ -21,7 +21,7 @@ PERCENTAGE = round(random.uniform(0.73,0.87),3)
 this_file = os.path.dirname( os.path.dirname(os.path.abspath(__file__)) )      # parent directory
 cd = os.path.join(this_file, "data")
 row_size = 1000
-time = ""
+time = "morning"
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -35,7 +35,7 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 528     #sun-thur
+    LUT = 529     #sun-thur
     correctness = 5
     start = 44
     
@@ -52,6 +52,7 @@ pred_file = os.path.join(cd, pred_file_name)
 
 ############################### global var ############################
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# device = "cpu"
 date = None
 PRELOAD = False                 # preload the model with the previous ones parameters. Used for sliding window to help reteach on new data
 # percentage = 0.84               # % of data to use as training
@@ -163,9 +164,11 @@ def dataloader_subset(loader, start, end, size=16, shuffle=False):
     # converting tensordataset to dataloader
     # print(f"start:{start}, end: {end}")
     if end > len(loader):
-        end = loader
+        end = len(loader)
     if start < 0:
         start = 0
+    if start > len(loader):
+        return -1
     if start == end:
         return -1
     idx = list(range(start,end))
@@ -256,7 +259,7 @@ def test(model, loss_fn, test_loader):
     tot_loss = 0
     with torch.no_grad():
         # print("predicted vs. actual  difference") 
-        print(f"predicted\ttarget\tdifference")            
+        # print(f"predicted\ttarget\tdifference")            
         for data, holiday, target in test_loader:
             data, holiday, target = data.to(device), holiday.to(device) ,target.to(device)
             # predict values

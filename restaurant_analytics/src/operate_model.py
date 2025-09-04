@@ -38,7 +38,7 @@ tt_l = []
 acc =  []
 pred = []
 
-number_of_weights = int(np.ceil(n/(sliding_window_size*FACTOR)))
+number_of_weights = int(np.floor((n-ml.start)/(sliding_window_size*FACTOR)))
 slide_weights = np.linspace(0.5, 1.0, number_of_weights)
 slide_weights = slide_weights/ slide_weights.sum()
 pred_calc = {
@@ -135,7 +135,7 @@ def run_model():
             run_model_in_test = False
         for i in range(runs):
             dropout = round(random.uniform(0.2,0.5),3)
-            print(f"starting model on test {i}....")
+            print(f"normal run on model, test {i}....")
             train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, test_mode=run_model_in_test, dropout=dropout)
             tr_l.append(round(train_l,2))
             tt_l.append(round(test_l,2))
@@ -174,12 +174,14 @@ def sliding_window(size=sliding_window_size):
     for i in range(0,n,overlap):
         end = start + sliding_window_size + i
         if (start + sliding_window_size+i) > n:
-            end = n
+            return
         train_loader = ml.dataloader_subset(dataset, start+i, end, batch_size, True)
         test_loader = ml.dataloader_subset(dataset, end, n, batch_size)
         if test_loader == -1:
             global run_model_in_test
             run_model_in_test = False
+        if train_loader == -1:
+            return
 
         train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=end/n,test_mode=run_model_in_test)
         
