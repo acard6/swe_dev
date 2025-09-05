@@ -10,7 +10,6 @@ import random
 
 
 # values for the model
-runs = 2        # number of runs to be averaged out
 epochs = 1000   # number of epochs in a single run
 batch_size = 32 # data batch size
 run_model_in_test = True
@@ -22,13 +21,14 @@ dataset = ml.convert_data(batch_size)
 data_size = int(n* PERCENTAGE)     # the real data * seed . for splitting real data into training and testing
 # var for normal run
 run_normal = True 
+runs = 5        # number of runs to be averaged out
 #var for expanding window
 run_expanding_window = True
-window_runs = 3
+window_runs = 6
 #var for sliding window
 run_sliding_window = True
-sliding_window_size = 60
-FACTOR = 75/100            # 1-overlap%. how much of this data is independent from the following 
+sliding_window_size = 75
+FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
 
 
@@ -38,9 +38,13 @@ tt_l = []
 acc =  []
 pred = []
 
-number_of_weights = int(np.floor((n-ml.start)/(sliding_window_size*FACTOR)))
+number_of_weights = int((n-ml.start)/(sliding_window_size*FACTOR))
 slide_weights = np.linspace(0.5, 1.0, number_of_weights)
 slide_weights = slide_weights/ slide_weights.sum()
+
+expanding_weights = np.linspace(0.5, 1.0, number_of_weights)
+expanding_weights = expanding_weights/ expanding_weights.sum()
+
 pred_calc = {
     "fixed":[], 
     "expanding":[], 
@@ -48,8 +52,8 @@ pred_calc = {
 }
 
 weights = {
-    "fixed": 0.2,
-    "expanding": 0.3,
+    "fixed": .4,
+    "expanding": expanding_weights.tolist(),
     "sliding": slide_weights.tolist()
 }
 future_loader =  ml.dataloader_subset(dataset, n, ml.row_size, batch_size)  
@@ -164,7 +168,7 @@ def expanding_window():
             tt_l.append(round(test_l,2))
             tr_l.append(round(train_l,2))
             acc.append(round(accuracy*100,2))
-            print(f"completed run {i}")
+            print(f"completed window {i+1}/{window_runs}")
 
 def sliding_window(size=sliding_window_size):
     start = ml.start
@@ -202,15 +206,21 @@ def weighted_ensemble(predictions, weights):
     win_preds = [torch.as_tensor(p, dtype=torch.float32) for p in predictions["expanding"]]
     slide_preds = [torch.as_tensor(p, dtype=torch.float32) for p in predictions["sliding"]]
 
+    normalizing = []
+
     if reg_preds:
         reg_preds = torch.stack(reg_preds).mean(dim=0)
-        reg_weight = weights['fixed'] * reg_preds
+        # reg_weight = weights['fixed'] * reg_preds
+        normalizing.append((reg_preds, weights.get('fixed', 1.0)))
     else:
         reg_weight = 0
 
     if win_preds:
-        win_preds = torch.stack(win_preds).mean(dim=0)
-        win_weight = weights['fixed'] * win_preds
+        ew = torch.as_tensor(weights["expanding"], dtype=torch.float32)
+        ew /= ew.sum()
+        ew_stack = torch.stack(win_preds)
+        ew = (ew.unsqueeze(-1)*ew_stack).sum(dim=0)
+        normalizing.append((ew, 1.0))
     else:
         win_weight = 0
     
@@ -220,11 +230,16 @@ def weighted_ensemble(predictions, weights):
         sw /= sw.sum()
         sw_stack = torch.stack(slide_preds)
         sw = (sw.unsqueeze(-1) * sw_stack).sum(dim=0)
+        normalizing.append((sw, 1.0))
     else:
         sw = 0
     
-    GOD_SAYS = reg_weight + win_weight + sw
-    return GOD_SAYS.round().clamp(min=0).int()
+    if normalizing:
+        tot_weight = sum(w for _,w in normalizing)
+        GOD_SAYS = sum(pred * (w/tot_weight) for pred, w in normalizing)
+    else:
+        GOD_SAYS = None
+    return GOD_SAYS.round().clamp(min=0).int() if GOD_SAYS is not None else None
 
 if __name__ == "__main__":
     main()
