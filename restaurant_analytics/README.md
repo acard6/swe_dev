@@ -25,8 +25,12 @@ expanding window - when using expanding windowing using a window of size 5 yield
 sliding window - at 20% overlap smaller window does better (45 > 90)points. 90 points doesnt do well, less would be better. small window/large overlap: good for accuracy
                 small window/small overlap: fast
 
+_When refering to normal I simply mean that splitting testing and training data down some line and then training and testing the model a handful of times and averaging results._
+After implementing sliding and expanding windowing and comparing their testing results I found that the basic average of expanding window, sliding windowing, and normal runs result in better results for weekend days data. I can also achieve similar results by simply taking the average of the weighted ensemble of **windowing only, normal only, and window and normal**. As for the achiving the best results for weekday data it so far appears that using the average of ensemble weighted results of window only, window and sliding, sliding only, sliding and normal, normal only, and normal and expanding can achieve close results to what is to be expected. This can be seen when I had done a few runs by running the model to use certain operational modes only and a mix of the operational modes (the operational modes refered here are running it normal, expanding window, and sliding window). For the time being until further data is gathered and testing is done, I will simply suggest that using the average of the weighted ensemble of predictions to be used as a final prediction for weekday data.
+As of this moment nothing has been tested for the morning data everything mentioned in the previous paragraph is intended for the data labeled as data which refers to the afternoons
 
 *The ML.py file can chart the losses and predict values assuming that the necessary values for how far in to predict have been given.
+
 
 
 ## findings on testing

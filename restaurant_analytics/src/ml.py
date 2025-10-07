@@ -35,13 +35,13 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 532     #sun-thur
+    LUT = 564     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 532     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 550     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
@@ -55,6 +55,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # device = "cpu"
 date = None
 PRELOAD = False                 # preload the model with the previous ones parameters. Used for sliding window to help reteach on new data
+SAVE_MODEL_WEIGHTS = False      # save the model weights for use in future training/testing/predictions
 # percentage = 0.84               # % of data to use as training
 
 year = 2025
@@ -181,6 +182,19 @@ def dataloader_subset(loader, start, end, size=16, shuffle=False):
 def use_save():
     global PRELOAD
     PRELOAD = True
+    # print("using previous pretrained model weights")
+
+def disable_save():
+    global PRELOAD
+    PRELOAD = False
+    # print("no longer using previous model save")
+
+def save_weights():
+    global SAVE_MODEL_WEIGHTS
+    SAVE_MODEL_WEIGHTS = True
+def forget_weights():
+    global SAVE_MODEL_WEIGHTS
+    SAVE_MODEL_WEIGHTS = False
   
 def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     '''
@@ -231,7 +245,8 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
     # print(f"Average loss on training: {avg:.2f}")
     # print(".",end="\n")\
     output = os.path.join(this_file, "weights.pth")
-    torch.save({"model_state": model.state_dict(),}, output)
+    if (SAVE_MODEL_WEIGHTS):
+        torch.save({"model_state": model.state_dict(),}, output)
     return avg   #returns an array of losses over epochs with "epochs" elements inside as well as original model output
 
 
@@ -257,6 +272,7 @@ def test(model, loss_fn, test_loader):
     samples = 0
     correct = 0
     tot_loss = 0
+    idx = 0
     with torch.no_grad():
         # print("predicted vs. actual  difference") 
         # print(f"predicted\ttarget\tdifference")            
@@ -265,17 +281,25 @@ def test(model, loss_fn, test_loader):
             # predict values
             predicted = model(data, holiday)
 
-            for i in range(len(predicted)):
-                p = int(predicted[i])
-                a = int(target[i])
+            # for i in range(len(predicted)):
+            #     p = int(predicted[i])
+            #     a = int(target[i])
+                
                 # if abs(p-a) <= correctness:
                 #    print(f"{p}\t\t{a}\t{abs(p-a)}")
                 # print(f"{p}\t\t{a}\t{abs(p-a)}")
+
+                # day = int(date+i+32*idx)
+                # res = datetime(year,1,1) + timedelta(days=day-1)
+                # res = res.strftime("%m/%d/%Y")
+                # print(f"{res}: {p:<3}\t\t{a}")
+
             # compute loss
             loss = loss_fn(predicted, target)
             tot_loss += loss.item()
             correct += (abs(predicted - target) <= correctness).sum().item()
             samples += target.size(0)
+            idx += 1
     if (len(test_loader) == 0):
             return 0,0
 
@@ -340,7 +364,8 @@ def plot_losses(epochs, loss_arr):
 
 def activate_model(num_epochs=1000, train_loader=None, test_loader=None, future_loader=None, percetage=PERCENTAGE, dropout=DROPOUT, test_mode=True):
     # batch_size = 32
-    print(f"b: {b}, c: {c}, file used: {time}, trainging on {percetage*100:.0f}% data, dropout{dropout}")
+    # print(f"b: {b}, c: {c}, file used: {time}, trainging on {percetage*100:.0f}% data, dropout{dropout}")
+    print(f"file: {time}, trainging on {percetage*100:.2f}% data, dropout: {dropout}")
 
     # num_epochs = 1000   #for weekday data consider 2000 epochs. weekend either 1500.
 

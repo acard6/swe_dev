@@ -9,10 +9,10 @@ from ml import DROPOUT as DROPOUT
 import random
 
 
-# values for the model
+############################################################################ values setup for the model
 epochs = 1000   # number of epochs in a single run
-batch_size = 32 # data batch size
-run_model_in_test = True
+batch_size = 128 # data batch size
+run_model_in_test = True        #if a dataloader subset returns -1(no data in loader) there is no need to test on said data since it is nonexistent
 
 # preload the data once as tensors
 dataset = ml.convert_data(batch_size) 
@@ -20,16 +20,17 @@ dataset = ml.convert_data(batch_size)
 # convert data to loaders using a fixed split. (anywhere between 70/30-85/15 on trainin/testing)
 data_size = int(n* PERCENTAGE)     # the real data * seed . for splitting real data into training and testing
 # var for normal run
-run_normal = True 
+run_normal = False 
 runs = 5        # number of runs to be averaged out
 #var for expanding window
 run_expanding_window = True
-window_runs = 6
+window_runs = 8
 #var for sliding window
-run_sliding_window = True
+run_sliding_window = False
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
+TEST_SIZE = int(0.10 * n)
 
 
 # storing the output of the model to average things out at the end
@@ -42,7 +43,7 @@ number_of_weights = int((n-ml.start)/(sliding_window_size*FACTOR))
 slide_weights = np.linspace(0.5, 1.0, number_of_weights)
 slide_weights = slide_weights/ slide_weights.sum()
 
-expanding_weights = np.linspace(0.5, 1.0, number_of_weights)
+expanding_weights = np.linspace(0.5, 1.0, window_runs)
 expanding_weights = expanding_weights/ expanding_weights.sum()
 
 pred_calc = {
@@ -57,7 +58,7 @@ weights = {
     "sliding": slide_weights.tolist()
 }
 future_loader =  ml.dataloader_subset(dataset, n, ml.row_size, batch_size)  
-
+#################################################################################### end of value setup
 
 def main():
     '''
@@ -80,18 +81,18 @@ def main():
     if (run_normal):
         run_model()
 
-
-            ######################## expanding
-
-    if (run_expanding_window):
-        expanding_window()
-    
             #################### sliding
 
 
     if(run_sliding_window):
         # print("starting sliding window")
         sliding_window()
+
+            ######################## expanding
+
+    if (run_expanding_window):
+        expanding_window()
+    
 
     end_time = time.time()
     print(f"elapsed time: {end_time-start_time:.3f} second to run model")
@@ -106,7 +107,7 @@ def main():
 #########  old predictiong
     # printing the entire prediction list
     old = False
-    if old == False:
+    if not old:
         pred_array = np.array(pred)
         l = len(pred_array)
         num_rows = len(pred_array[0]) if (l>0) else 0
@@ -124,82 +125,91 @@ def main():
 ######### new predicting
     final_pred = weighted_ensemble(pred_calc, weights)
     print("using weighted ensemble, heres those predictions:")
-    for i in (final_pred.tolist()):
-        print(i)
+    final_pred = final_pred.tolist()
+    for i in (range(13)):
+        print(final_pred[i])
 
 
 def run_model():
-        data_size = int(n* random.uniform(0.73,0.87))            
-        train_loader =  ml.dataloader_subset(dataset, ml.start, data_size, batch_size, True)  
-        test_loader =  ml.dataloader_subset(dataset, data_size, n, batch_size,)
-        ml.use_save()
-        # print("Normal run")
-        if test_loader == -1:
-            global run_model_in_test
-            run_model_in_test = False
-        for i in range(runs):
-            dropout = round(random.uniform(0.2,0.5),3)
-            print(f"normal run on model, test {i}....")
-            train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, test_mode=run_model_in_test, dropout=dropout)
-            tr_l.append(round(train_l,2))
-            tt_l.append(round(test_l,2))
-            acc.append(round(accuracy*100,2))
-            pred.append([int(round(x,0)) for x in prediction])
-            # ml_train, ml_test, pred = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader)
-            pred_calc["fixed"].append(prediction)
-            print(f"completed run {i}\n")
+    data_size = int(n* random.uniform(0.67,0.87))         
+    train_loader =  ml.dataloader_subset(dataset, ml.start, data_size, batch_size, True)  
+    test_loader =  ml.dataloader_subset(dataset, data_size, n, batch_size,)
+    
+    # print("Normal run")
+    if test_loader == -1:
+        global run_model_in_test
+        run_model_in_test = False
+    for i in range(runs):
+        dropout = round(random.uniform(0.2,0.5),3)
+        # print(f"normal run on model, test {i}....")
+        train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, test_mode=run_model_in_test, dropout=dropout, percetage=data_size/n)
+        tr_l.append(round(train_l,2))
+        tt_l.append(round(test_l,2))
+        acc.append(round(accuracy*100,2))
+        pred.append([int(round(x,0)) for x in prediction])
+        # ml_train, ml_test, pred = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader)
+        pred_calc["fixed"].append(prediction)
+        print(f"completed run {i+1}")
+        print(f"run accuracy: {accuracy*100:.2f}\n")
+        ml.save_weights()
+        # ml.use_save()
+    print()
 
 def expanding_window():
+    # ml.disable_save()
+    size = max(window_runs-1, 1)
+    # print("starting expanding window")
+    for i in range(window_runs):
         dropout = round(random.uniform(0.2,0.5),3)    
-        size = max(window_runs-1, 1)
-        # print("starting expanding window")
-        for i in range(window_runs):
-            # ml.use_save()
-            window_size = int(n*(i*(0.47)/size+0.5)) # ( (%A+%B)/(runs-1) * i + %B ) * n
-            train_loader = ml.dataloader_subset(dataset, ml.start, window_size, batch_size, True)
-            test_loader = ml.dataloader_subset(dataset, window_size, n, batch_size)
-            if test_loader == -1:
-                global run_model_in_test
-                run_model_in_test = False
-            train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=window_size/n,test_mode=run_model_in_test)
-
-            pred_calc["expanding"].append(prediction)
-            pred.append([int(round(x,0)) for x in prediction])
-            tt_l.append(round(test_l,2))
-            tr_l.append(round(train_l,2))
-            acc.append(round(accuracy*100,2))
-            print(f"completed window {i+1}/{window_runs}")
-
-def sliding_window(size=sliding_window_size):
-    start = ml.start
-    overlap = int(size*FACTOR)
-    ml.use_save()
-    dropout = round(random.uniform(0.2,0.5),3)
-    for i in range(0,n,overlap):
-        end = start + sliding_window_size + i
-        if (start + sliding_window_size+i) > n:
-            return
-        train_loader = ml.dataloader_subset(dataset, start+i, end, batch_size, True)
-        test_loader = ml.dataloader_subset(dataset, end, n, batch_size)
+        window_size = int(n*(i*(0.40)/size+0.5)) # ( (%A+%B)/(runs-1) * i + %B ) * n
+        train_loader = ml.dataloader_subset(dataset, ml.start, window_size, batch_size, True)
+        test_loader = ml.dataloader_subset(dataset, window_size, window_size+TEST_SIZE, batch_size)
         if test_loader == -1:
             global run_model_in_test
             run_model_in_test = False
-        if train_loader == -1:
-            return
+        train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=window_size/n,test_mode=run_model_in_test)
 
-        train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=end/n,test_mode=run_model_in_test)
-        
-        pred_calc["sliding"].append(prediction)
         pred.append([int(round(x,0)) for x in prediction])
         tt_l.append(round(test_l,2))
         tr_l.append(round(train_l,2))
         acc.append(round(accuracy*100,2))
-        # cont = ""
-        # while cont != "y":
-        #     print("would you like to continue (y/n)")
-        #     cont = input()
-        #     if cont == 'n':
-        #         return
+        print(f"completed window {i+1}/{window_runs}")
+        print(f"exp window accuracy: {accuracy*100:.2f}\n")
+        ml.save_weights()
+        pred_calc["expanding"].append(prediction)
+        # ml.use_save()
+    print()
+
+def sliding_window(size=sliding_window_size):
+    start = ml.start
+    overlap = int(size*FACTOR)
+    # ml.disable_save()
+    dropout = round(random.uniform(0.2,0.5),3)
+    for i in range(0,n,overlap):
+        end = start + sliding_window_size + i
+        if (end) > n:
+            break
+        train_loader = ml.dataloader_subset(dataset, start+i, end, batch_size, True)
+        test_loader = ml.dataloader_subset(dataset, end, end+TEST_SIZE, batch_size)
+        if test_loader == -1:
+            global run_model_in_test
+            run_model_in_test = False
+        if train_loader == -1:
+            break
+
+        ml.use_save()
+        train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=end/n,test_mode=run_model_in_test)
+        
+        pred.append([int(round(x,0)) for x in prediction])
+        if not (np.isnan(test_l)):
+            tt_l.append(round(test_l,2))
+        tr_l.append(round(train_l,2))
+        acc.append(round(accuracy*100,2))
+        print(f"sliding window accuracy: {accuracy*100:.2f}\n")
+        # print(f"sliding window loss: {test_l:.2f}\n")
+        ml.save_weights()
+    pred_calc["sliding"].append(prediction)
+
 
 def weighted_ensemble(predictions, weights):
     reg_preds = [torch.as_tensor(p, dtype=torch.float32) for p in predictions["fixed"]]
@@ -212,8 +222,6 @@ def weighted_ensemble(predictions, weights):
         reg_preds = torch.stack(reg_preds).mean(dim=0)
         # reg_weight = weights['fixed'] * reg_preds
         normalizing.append((reg_preds, weights.get('fixed', 1.0)))
-    else:
-        reg_weight = 0
 
     if win_preds:
         ew = torch.as_tensor(weights["expanding"], dtype=torch.float32)
@@ -221,8 +229,6 @@ def weighted_ensemble(predictions, weights):
         ew_stack = torch.stack(win_preds)
         ew = (ew.unsqueeze(-1)*ew_stack).sum(dim=0)
         normalizing.append((ew, 1.0))
-    else:
-        win_weight = 0
     
 
     if slide_preds:
@@ -231,8 +237,6 @@ def weighted_ensemble(predictions, weights):
         sw_stack = torch.stack(slide_preds)
         sw = (sw.unsqueeze(-1) * sw_stack).sum(dim=0)
         normalizing.append((sw, 1.0))
-    else:
-        sw = 0
     
     if normalizing:
         tot_weight = sum(w for _,w in normalizing)
