@@ -21,12 +21,12 @@ dataset = ml.convert_data(batch_size)
 data_size = int(n* PERCENTAGE)     # the real data * seed . for splitting real data into training and testing
 # var for normal run
 run_normal = False 
-runs = 5        # number of runs to be averaged out
+runs = 10        # number of runs to be averaged out
 #var for expanding window
-run_expanding_window = True
+run_expanding_window = False
 window_runs = 8
 #var for sliding window
-run_sliding_window = False
+run_sliding_window = True
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
@@ -79,13 +79,14 @@ def main():
 
         ############################## normal
     if (run_normal):
-        run_model()
+        run_model(runs)
 
             #################### sliding
 
 
     if(run_sliding_window):
         # print("starting sliding window")
+        run_model(1, save_weights=True)
         sliding_window()
 
             ######################## expanding
@@ -126,11 +127,11 @@ def main():
     final_pred = weighted_ensemble(pred_calc, weights)
     print("using weighted ensemble, heres those predictions:")
     final_pred = final_pred.tolist()
-    for i in (range(13)):
-        print(final_pred[i])
+    for i in (final_pred):
+        print(i)
 
 
-def run_model():
+def run_model(lenght=runs, use_prior=False, save_weights=False, save_results=True):
     data_size = int(n* random.uniform(0.67,0.87))         
     train_loader =  ml.dataloader_subset(dataset, ml.start, data_size, batch_size, True)  
     test_loader =  ml.dataloader_subset(dataset, data_size, n, batch_size,)
@@ -139,23 +140,30 @@ def run_model():
     if test_loader == -1:
         global run_model_in_test
         run_model_in_test = False
-    for i in range(runs):
+    for i in range(lenght):
         dropout = round(random.uniform(0.2,0.5),3)
         # print(f"normal run on model, test {i}....")
+
+        if use_prior:
+            ml.use_save()
+
         train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, test_mode=run_model_in_test, dropout=dropout, percetage=data_size/n)
-        tr_l.append(round(train_l,2))
-        tt_l.append(round(test_l,2))
-        acc.append(round(accuracy*100,2))
-        pred.append([int(round(x,0)) for x in prediction])
-        # ml_train, ml_test, pred = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader)
-        pred_calc["fixed"].append(prediction)
+        
+        if save_results:
+            tr_l.append(round(train_l,2))
+            tt_l.append(round(test_l,2))
+            acc.append(round(accuracy*100,2))
+            pred.append([int(round(x,0)) for x in prediction])
+            pred_calc["fixed"].append(prediction)
+        
         print(f"completed run {i+1}")
         print(f"run accuracy: {accuracy*100:.2f}\n")
-        ml.save_weights()
-        # ml.use_save()
+        if save_weights:
+            ml.save_weights()
+
     print()
 
-def expanding_window():
+def expanding_window(use_prior=False, save_weights=False, save_results=True):
     # ml.disable_save()
     size = max(window_runs-1, 1)
     # print("starting expanding window")
@@ -164,27 +172,36 @@ def expanding_window():
         window_size = int(n*(i*(0.40)/size+0.5)) # ( (%A+%B)/(runs-1) * i + %B ) * n
         train_loader = ml.dataloader_subset(dataset, ml.start, window_size, batch_size, True)
         test_loader = ml.dataloader_subset(dataset, window_size, window_size+TEST_SIZE, batch_size)
+        
         if test_loader == -1:
             global run_model_in_test
             run_model_in_test = False
+        
+        if use_prior:
+            ml.use_save()
+        
         train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=window_size/n,test_mode=run_model_in_test)
 
-        pred.append([int(round(x,0)) for x in prediction])
-        tt_l.append(round(test_l,2))
-        tr_l.append(round(train_l,2))
-        acc.append(round(accuracy*100,2))
+        if save_results:
+            pred.append([int(round(x,0)) for x in prediction])
+            tt_l.append(round(test_l,2))
+            tr_l.append(round(train_l,2))
+            acc.append(round(accuracy*100,2))
+            pred_calc["expanding"].append(prediction)
+        
         print(f"completed window {i+1}/{window_runs}")
         print(f"exp window accuracy: {accuracy*100:.2f}\n")
-        ml.save_weights()
-        pred_calc["expanding"].append(prediction)
-        # ml.use_save()
+        
+        if save_weights:
+            ml.save_weights()
     print()
 
-def sliding_window(size=sliding_window_size):
+def sliding_window(size=sliding_window_size, use_prior=False, save_weights=False, save_results=True):
     start = ml.start
     overlap = int(size*FACTOR)
     # ml.disable_save()
     dropout = round(random.uniform(0.2,0.5),3)
+  
     for i in range(0,n,overlap):
         end = start + sliding_window_size + i
         if (end) > n:
@@ -197,18 +214,24 @@ def sliding_window(size=sliding_window_size):
         if train_loader == -1:
             break
 
-        ml.use_save()
+        if use_prior:
+            ml.use_save()
         train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=end/n,test_mode=run_model_in_test)
+
+        if save_results:        
+            pred.append([int(round(x,0)) for x in prediction])
+            if not (np.isnan(test_l)):
+                tt_l.append(round(test_l,2))
+            tr_l.append(round(train_l,2))
+            acc.append(round(accuracy*100,2))
         
-        pred.append([int(round(x,0)) for x in prediction])
-        if not (np.isnan(test_l)):
-            tt_l.append(round(test_l,2))
-        tr_l.append(round(train_l,2))
-        acc.append(round(accuracy*100,2))
         print(f"sliding window accuracy: {accuracy*100:.2f}\n")
         # print(f"sliding window loss: {test_l:.2f}\n")
-        ml.save_weights()
-    pred_calc["sliding"].append(prediction)
+        if save_weights:
+            ml.save_weights()
+
+    if save_results:
+        pred_calc["sliding"].append(prediction)
 
 
 def weighted_ensemble(predictions, weights):

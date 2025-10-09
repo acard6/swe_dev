@@ -164,7 +164,7 @@ def plot_all():
 
 
 def run_tot():
-	# img_pth = os.path.join(cd,"images/run_tot.png")
+	img_pth = os.path.join(cd,"images/run_tot.png")
 	df = pd.read_excel(fp, usecols="D",)
 	data = np.zeros(len(df['count']))
 	data[0] = df['count'][0]
@@ -178,7 +178,7 @@ def run_tot():
 	plt.xlabel("Index")
 	plt.ylabel("total covers")
 	plt.grid(True)
-	# plt.savefig(img_pth)
+	plt.savefig(img_pth)
 	# Show the plot
 	plt.show()
 
@@ -188,7 +188,7 @@ def main():
 	# print_weekly_data(d)
 
 	# plot_all()
-	# run_tot()
+	run_tot()
 
 	A = {}
 	a = days_of_week()
