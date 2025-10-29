@@ -20,13 +20,13 @@ dataset = ml.convert_data(batch_size)
 # convert data to loaders using a fixed split. (anywhere between 70/30-85/15 on trainin/testing)
 data_size = int(n* PERCENTAGE)     # the real data * seed . for splitting real data into training and testing
 # var for normal run
-run_normal = False 
+run_normal = 1 
 runs = 10        # number of runs to be averaged out
 #var for expanding window
-run_expanding_window = False
+run_expanding_window = 1
 window_runs = 8
 #var for sliding window
-run_sliding_window = True
+run_sliding_window = 0
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
@@ -92,7 +92,7 @@ def main():
             ######################## expanding
 
     if (run_expanding_window):
-        expanding_window()
+        expanding_window(save_weights=True)
     
 
     end_time = time.time()

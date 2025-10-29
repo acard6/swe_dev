@@ -21,7 +21,7 @@ PERCENTAGE = round(random.uniform(0.73,0.87),3)
 this_file = os.path.dirname( os.path.dirname(os.path.abspath(__file__)) )      # parent directory
 cd = os.path.join(this_file, "data")
 row_size = 1000
-time = ""
+time = "morning"
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -35,13 +35,13 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 564     #sun-thur
+    LUT = 580     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 566     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 585     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
@@ -51,8 +51,8 @@ pred_file = os.path.join(cd, pred_file_name)
 
 
 ############################### global var ############################
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# device = "cpu"
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = "cpu"
 date = None
 PRELOAD = False                 # preload the model with the previous ones parameters. Used for sliding window to help reteach on new data
 SAVE_MODEL_WEIGHTS = False      # save the model weights for use in future training/testing/predictions
@@ -232,9 +232,9 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
 
             optimizer.step()
             running_loss += loss.item()
-        if epoch%250 == 0:
-        #     print("",end=".",flush=True)
-            print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
+        # if epoch%250 == 0:
+        # #     print("",end=".",flush=True)
+        #     print(f'Epoch {epoch}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
         losses.append(running_loss / len(train_loader))
 
         if scheduler != None:

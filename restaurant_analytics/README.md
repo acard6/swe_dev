@@ -21,7 +21,7 @@ Each one of the three data partitions has a baseline as to how off is can be fro
 
 The model runs with an L1 loss function considering its output is positive whole numbers and an adam optimizert with a scheduler to help in decreasing loss over time as the model works.
 
-expanding window - when using expanding windowing using a window of size 5 yields high results as well as 3. >30%.
+expanding window - when using expanding windowing using 5 equal sized windows yields high results as well as 3. >30%.
 sliding window - at 20% overlap smaller window does better (45 > 90)points. 90 points doesnt do well, less would be better. small window/large overlap: good for accuracy
                 small window/small overlap: fast
 
