@@ -19,14 +19,17 @@ dataset = ml.convert_data(batch_size)
 
 # convert data to loaders using a fixed split. (anywhere between 70/30-85/15 on trainin/testing)
 data_size = int(n* PERCENTAGE)     # the real data * seed . for splitting real data into training and testing
+
 # var for normal run
-run_normal = 1 
+run_normal = 1
 runs = 10        # number of runs to be averaged out
+
 #var for expanding window
-run_expanding_window = 1
+run_expanding_window = 0
 window_runs = 8
+
 #var for sliding window
-run_sliding_window = 0
+run_sliding_window = 1
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
@@ -79,7 +82,7 @@ def main():
 
         ############################## normal
     if (run_normal):
-        run_model(runs)
+        run_model(runs, use_prior=False, save_weights=False)
 
             #################### sliding
 
@@ -144,7 +147,7 @@ def run_model(lenght=runs, use_prior=False, save_weights=False, save_results=Tru
         dropout = round(random.uniform(0.2,0.5),3)
         # print(f"normal run on model, test {i}....")
 
-        if use_prior:
+        if use_prior and not (i==0):
             ml.use_save()
 
         train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, test_mode=run_model_in_test, dropout=dropout, percetage=data_size/n)

@@ -21,7 +21,7 @@ PERCENTAGE = round(random.uniform(0.73,0.87),3)
 this_file = os.path.dirname( os.path.dirname(os.path.abspath(__file__)) )      # parent directory
 cd = os.path.join(this_file, "data")
 row_size = 1000
-time = "morning"
+time = ""
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -35,13 +35,13 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 580     #sun-thur
+    LUT = 588     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 585     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 588     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
@@ -239,7 +239,7 @@ def train(model,optimizer, loss_fn, train_loader, epochs=100, scheduler=None):
 
         if scheduler != None:
             scheduler.step()
-    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
+    # print(f'Epoch {epoch+1}/{num_epochs}, Loss: {running_loss / len(train_loader)}')
     # print(f"{data}\n{target}")
     avg = np.average(losses)
     # print(f"Average loss on training: {avg:.2f}")
