@@ -25,7 +25,7 @@ run_normal = 1
 runs = 10        # number of runs to be averaged out
 
 #var for expanding window
-run_expanding_window = 0
+run_expanding_window = 1
 window_runs = 8
 
 #var for sliding window

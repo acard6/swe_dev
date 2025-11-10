@@ -41,7 +41,7 @@ elif time == "morning":#consider 80% training data for mornings
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 588     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 598     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
@@ -72,7 +72,7 @@ d = 1
 
 class NN_model(nn.Module):
     ''' a simple neural net to train and test data on '''
-    def __init__(self, input_dim=6, output_dim=1, num_hol=30,embed_dim=8, dropout=DROPOUT):
+    def __init__(self, input_dim=6, output_dim=1, num_hol=32,embed_dim=8, dropout=DROPOUT):
         super(NN_model, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=num_hol, embedding_dim=embed_dim)
 
@@ -399,8 +399,3 @@ def activate_model(num_epochs=1000, train_loader=None, test_loader=None, future_
     
 
 
-
-# def main():
-#     run_ml(32,1000)
-# if __name__ == "__main__":
-# 	main()
