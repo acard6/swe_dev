@@ -25,11 +25,11 @@ run_normal = 1
 runs = 10        # number of runs to be averaged out
 
 #var for expanding window
-run_expanding_window = 1
+run_expanding_window = 0
 window_runs = 8
 
 #var for sliding window
-run_sliding_window = 1
+run_sliding_window = 0 
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
