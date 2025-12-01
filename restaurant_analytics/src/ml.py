@@ -21,7 +21,7 @@ PERCENTAGE = round(random.uniform(0.73,0.87),3)
 this_file = os.path.dirname( os.path.dirname(os.path.abspath(__file__)) )      # parent directory
 cd = os.path.join(this_file, "data")
 row_size = 1000
-time = "morning"
+time = ""
 start = 0
 if time == "weekend":
     file_name = cd+"\\fri-sat.xlsx"
@@ -41,7 +41,7 @@ elif time == "morning":#consider 80% training data for mornings
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 603     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 618     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
@@ -304,6 +304,8 @@ def test(model, loss_fn, test_loader):
             return 0,0
 
     average_loss = tot_loss / len(test_loader)
+    if np.isnan(average_loss):
+        print(tot_loss)
     accuracy = correct / samples
 
     # print(f'Average Loss on testing: {average_loss:.2f}')

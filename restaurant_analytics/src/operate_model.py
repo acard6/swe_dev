@@ -29,7 +29,7 @@ run_expanding_window = 0
 window_runs = 8
 
 #var for sliding window
-run_sliding_window = 0 
+run_sliding_window = 0
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
@@ -80,20 +80,17 @@ def main():
 ################################################## different ways to run the model --- timer starts
     start_time = time.time()    # timer for the runs
 
-        ############################## normal
+    ############################## normal
     if (run_normal):
         run_model(runs, use_prior=False, save_weights=False)
 
-            #################### sliding
-
-
+    #################### sliding
     if(run_sliding_window):
         # print("starting sliding window")
         run_model(1, save_weights=True)
         sliding_window()
 
-            ######################## expanding
-
+    ######################## expanding
     if (run_expanding_window):
         expanding_window(save_weights=True)
     
@@ -154,7 +151,8 @@ def run_model(lenght=runs, use_prior=False, save_weights=False, save_results=Tru
         
         if save_results:
             tr_l.append(round(train_l,2))
-            tt_l.append(round(test_l,2))
+            if not (np.isnan(test_l)):
+                tt_l.append(round(test_l,2))
             acc.append(round(accuracy*100,2))
             pred.append([int(round(x,0)) for x in prediction])
             pred_calc["fixed"].append(prediction)
@@ -187,7 +185,8 @@ def expanding_window(use_prior=False, save_weights=False, save_results=True):
 
         if save_results:
             pred.append([int(round(x,0)) for x in prediction])
-            tt_l.append(round(test_l,2))
+            if not (np.isnan(test_l)):
+                tt_l.append(round(test_l,2))
             tr_l.append(round(train_l,2))
             acc.append(round(accuracy*100,2))
             pred_calc["expanding"].append(prediction)
