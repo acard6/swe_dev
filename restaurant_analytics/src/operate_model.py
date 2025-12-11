@@ -25,7 +25,7 @@ run_normal = 1
 runs = 10        # number of runs to be averaged out
 
 #var for expanding window
-run_expanding_window = 0
+run_expanding_window = 1
 window_runs = 8
 
 #var for sliding window
@@ -82,17 +82,17 @@ def main():
 
     ############################## normal
     if (run_normal):
-        run_model(runs, use_prior=False, save_weights=False)
+        run_model(runs, use_prior=False, save_weights=True)
 
     #################### sliding
     if(run_sliding_window):
         # print("starting sliding window")
-        run_model(1, save_weights=True)
-        sliding_window()
+        # run_model(1, save_weights=True)
+        sliding_window(use_prior=False, save_weights=True)
 
     ######################## expanding
     if (run_expanding_window):
-        expanding_window(save_weights=True)
+        expanding_window(use_prior=False, save_weights=True)
     
 
     end_time = time.time()
@@ -178,7 +178,7 @@ def expanding_window(use_prior=False, save_weights=False, save_results=True):
             global run_model_in_test
             run_model_in_test = False
         
-        if use_prior:
+        if use_prior and not (i==0):
             ml.use_save()
         
         train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=window_size/n,test_mode=run_model_in_test)

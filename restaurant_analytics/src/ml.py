@@ -41,7 +41,7 @@ elif time == "morning":#consider 80% training data for mornings
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 618     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 627     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
