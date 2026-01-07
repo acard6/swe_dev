@@ -29,7 +29,7 @@ run_expanding_window = 1
 window_runs = 8
 
 #var for sliding window
-run_sliding_window = 0
+run_sliding_window = 1
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
@@ -82,17 +82,17 @@ def main():
 
     ############################## normal
     if (run_normal):
-        run_model(runs, use_prior=False, save_weights=True)
+        run_model(runs, use_prior=True, save_weights=True)
 
     #################### sliding
     if(run_sliding_window):
         # print("starting sliding window")
         # run_model(1, save_weights=True)
-        sliding_window(use_prior=False, save_weights=True)
+        sliding_window(use_prior=True, save_weights=True)
 
     ######################## expanding
     if (run_expanding_window):
-        expanding_window(use_prior=False, save_weights=True)
+        expanding_window(use_prior=True, save_weights=True)
     
 
     end_time = time.time()
