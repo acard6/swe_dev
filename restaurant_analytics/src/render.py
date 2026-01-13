@@ -71,7 +71,6 @@ def month_day_joint():
 			month_day[month][day][1] += 1
 	return month_day
 
-
 def print_weekly_data(input):
 	print("weekly data")
 	for i in range(len(input)):
@@ -185,39 +184,39 @@ def run_tot():
 def main():
 	days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 	d = weekly_total()
-	# print_weekly_data(d)
+	print_weekly_data(d)
 
-	# plot_all()
+	plot_all()
 	run_tot()
 
 	A = {}
 	a = days_of_week()
-	# print("data per given day")
+	print("data per given day")
 	for key, val in a.items():
 		#daily average throughout the week
 		out = np.sum(val)/len(val)
 		A[key] = out
-		# print("{}: {:.2f}".format(key,out) )
+		print("{}: {:.2f}".format(key,out) )
 	
-	# for i in days:
-	# 	print_daily_data(a, selected_day=i)	# prints a line graph for each given day
-	# print_daily_all(a)	# prints all the days on the same graph
-	# print_daily_average(A)	# prints bar graph of daily averages
+	for i in days:
+		print_daily_data(a, selected_day=i)	# prints a line graph for each given day
+	print_daily_all(a)	# prints all the days on the same graph
+	print_daily_average(A)	# prints bar graph of daily averages
 
 
-	# print("\ndata per given month")
+	print("\ndata per given month")
 	B = {}
 	b, b_tot_days = monthly_total()
 	for key, val in b.items():
 		#daily average for each month
 		B[key] = val/b_tot_days[key]
 		
-		# print("{}: {:.2f}".format(key,B[key]))
-	# print_monthly_average(B)		
+		print("{}: {:.2f}".format(key,B[key]))
+	print_monthly_average(B)		
 
 	c = month_day_joint()
 	#day-month combo that exceeds daily & month avg  
-	if False:
+	if True:
 		print("joint data for given month and day")
 		for i in range(len(c)):	# for month
 			for j in range(len(c[0])):	 # for day of week

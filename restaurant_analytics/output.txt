@@ -79,19 +79,33 @@ week 76: 566
 week 77: 640
 week 78: 652
 week 79: 651
-week 80: 565
+week 80: 624
+week 81: 405
+week 82: 521
+week 83: 558
+week 84: 445
+week 85: 483
+week 86: 561
+week 87: 422
+week 88: 421
+week 89: 609
+week 90: 602
+week 91: 704
+week 92: 686
+week 93: 369
+week 94: 229
 
 data per given day
-Sunday: 65.22
-Monday: 53.74
-Tuesday: 63.67
-Wednesday: 66.41
-Thursday: 79.19
-Friday: 145.07
-Saturday: 173.28
+Sunday: 62.97
+Monday: 52.32
+Tuesday: 61.80
+Wednesday: 66.54
+Thursday: 75.02
+Friday: 140.59
+Saturday: 168.38
 
 average data per given month
-January: 76.10
+January: 70.40
 February: 82.75
 March: 69.49
 April: 80.53
@@ -100,13 +114,12 @@ June: 96.08
 July: 101.24
 August: 106.97
 September: 94.18
-October: 88.13
-November: 99.00
-December: 105.10
+October: 80.94
+November: 82.80
+December: 99.27
 
 joint data for given month and day where both exceed each averages
-January-Friday          138.60
-January-Saturday        179.00
+January-Friday          131.29
 February-Friday         172.50
 February-Saturday       182.50
 May-Friday              149.70
@@ -114,6 +127,7 @@ May-Saturday            171.44
 May-Sunday              95.25
 June-Thursday           90.50
 June-Friday             153.62
+June-Saturday           159.11
 July-Thursday           108.00
 July-Friday             154.86
 July-Saturday           182.62
@@ -123,24 +137,23 @@ August-Saturday         178.60
 September-Thursday      90.12
 September-Friday        148.75
 September-Saturday      182.25
-October-Friday          169.80
-October-Saturday        194.60
-November-Wednesday      91.75
-November-Friday         144.20
-November-Saturday       189.80
-December-Tuesday        114.60
-December-Wednesday      96.33
-December-Friday         147.25
-December-Saturday       188.25
+October-Friday          137.22
+October-Saturday        181.38
+November-Saturday       163.80
+December-Tuesday        91.50
+December-Wednesday      103.75
+December-Thursday       90.14
+December-Friday         149.00
+December-Saturday       171.25
 
 general joint data
-January-Monday          35.33
-January-Tuesday         39.50
-January-Wednesday       48.20
-January-Thursday        53.40
-January-Friday          138.60
-January-Saturday        179.00
-January-Sunday          44.50
+January-Monday          29.75
+January-Tuesday         35.20
+January-Wednesday       44.83
+January-Thursday        52.17
+January-Friday          131.29
+January-Saturday        148.67
+January-Sunday          44.83
 February-Monday         39.50
 February-Tuesday        42.25
 February-Wednesday      44.75
@@ -197,24 +210,24 @@ September-Thursday      90.12
 September-Friday        148.75
 September-Saturday      182.25
 September-Sunday        63.33
-October-Monday          33.20
-October-Tuesday         57.33
-October-Wednesday       59.71
-October-Thursday        61.33
-October-Friday          169.80
-October-Saturday        194.60
-October-Sunday          63.80
-November-Monday         49.75
-November-Tuesday        44.75
-November-Wednesday      91.75
-November-Thursday       77.00
-November-Friday         144.20
-November-Saturday       189.80
-November-Sunday         61.75
-December-Monday         67.20
-December-Tuesday        114.60
-December-Wednesday      96.33
-December-Thursday       83.75
-December-Friday         147.25
-December-Saturday       188.25
-December-Sunday         76.60
+October-Monday          36.62
+October-Tuesday         50.89
+October-Wednesday       57.30
+October-Thursday        55.60
+October-Friday          137.22
+October-Saturday        181.38
+October-Sunday          56.50
+November-Monday         48.50
+November-Tuesday        44.62
+November-Wednesday      64.88
+November-Thursday       70.71
+November-Friday         123.44
+November-Saturday       163.80
+November-Sunday         51.11
+December-Monday         57.20
+December-Tuesday        91.50
+December-Wednesday      103.75
+December-Thursday       90.14
+December-Friday         149.00
+December-Saturday       171.25
+December-Sunday         71.67
