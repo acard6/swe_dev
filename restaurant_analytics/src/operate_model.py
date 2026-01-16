@@ -25,14 +25,15 @@ run_normal = 1
 runs = 10        # number of runs to be averaged out
 
 #var for expanding window
-run_expanding_window = 1
+run_expanding_window = 0
 window_runs = 8
 
 #var for sliding window
-run_sliding_window = 1
+run_sliding_window = 0
 sliding_window_size = 75
 FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
 
+MASTER_PRIOR = False 
 TEST_SIZE = int(0.10 * n)
 
 
@@ -82,17 +83,18 @@ def main():
 
     ############################## normal
     if (run_normal):
-        run_model(runs, use_prior=True, save_weights=True)
+        run_model(runs, use_prior=MASTER_PRIOR, save_weights=True)
 
     #################### sliding
     if(run_sliding_window):
         # print("starting sliding window")
-        # run_model(1, save_weights=True)
-        sliding_window(use_prior=True, save_weights=True)
+        if not run_normal and MASTER_PRIOR:
+            run_model(1, save_weights=True)
+        sliding_window(use_prior=MASTER_PRIOR, save_weights=True)
 
     ######################## expanding
     if (run_expanding_window):
-        expanding_window(use_prior=True, save_weights=True)
+        expanding_window(use_prior=MASTER_PRIOR, save_weights=True)
     
 
     end_time = time.time()
@@ -141,7 +143,7 @@ def run_model(lenght=runs, use_prior=False, save_weights=False, save_results=Tru
         global run_model_in_test
         run_model_in_test = False
     for i in range(lenght):
-        dropout = round(random.uniform(0.2,0.5),3)
+        dropout = round(random.uniform(0.1,0.3),3)
         # print(f"normal run on model, test {i}....")
 
         if use_prior and not (i==0):

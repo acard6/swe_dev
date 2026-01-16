@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 from sklearn.preprocessing import LabelEncoder
 import random
 
-DROPOUT = round(random.uniform(0.2,0.5),3)      
+DROPOUT = round(random.uniform(0.1,0.3),3)      
 PERCENTAGE = round(random.uniform(0.73,0.87),3)
 
 ############################### opening up the necesasry file ############################
@@ -35,13 +35,13 @@ elif time == "weekday":
 
 elif time == "morning":#consider 80% training data for mornings
     file_name = cd+"\\mornings.xlsx"
-    LUT = 650     #sun-thur
+    LUT = 660     #sun-thur
     correctness = 5
     start = 44
     
 else:
     file_name = cd+"\\data.xlsx"
-    LUT = 650     # total amount of values to look at  (some % of the total data being observed)
+    LUT = 655     # total amount of values to look at  (some % of the total data being observed)
     correctness = 10    # how much the data should be off by
 
 fp = os.path.join(cd, file_name)
@@ -59,9 +59,9 @@ SAVE_MODEL_WEIGHTS = False      # save the model weights for use in future train
 # percentage = 0.84               # % of data to use as training
 
 year = 2025
-a = 256
-b = 64  # use either b=64/c=32 or b=32/c=4
-c = 32  # 64x32 for weekday. 32x4 for weekend
+a = 64
+b = 32  # use either b=64/c=32 or b=32/c=4
+c = 4  # 64x32 for weekday. 32x4 for weekend
 d = 1
 ############################### EOL ############################
 
@@ -93,9 +93,9 @@ class NN_model(nn.Module):
 
         x = self.relu(self.hidden1(x))
         x = self.relu(self.hidden2(x))
+        # x = self.dropout(self.relu(self.hidden2(x)))
         
         x = self.dropout(self.relu(self.hidden3(x)))
-        # x = self.relu(self.hidden4(x))
         x = self.out(x)
 
         return x
@@ -374,7 +374,7 @@ def activate_model(num_epochs=1000, train_loader=None, test_loader=None, future_
     loss_fn = nn.L1Loss()
     model = NN_model(dropout=dropout)
     model.to(device)
-    optimizer = optim.Adam(params=model.parameters(), lr=0.05, weight_decay=1e-5)
+    optimizer = optim.Adam(params=model.parameters(), lr=0.05, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10,gamma=0.95)
 
     older_model = None
