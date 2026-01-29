@@ -194,7 +194,7 @@ def main():
    
     
     start = datetime(2025, 12, 28)
-    end = datetime(2026,2, 15)
+    end = datetime(2026,3, 15)
     df = get_weather(start, end)
     print(df)
     
