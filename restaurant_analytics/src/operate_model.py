@@ -30,10 +30,10 @@ window_runs = 8
 
 #var for sliding window
 run_sliding_window = 1
-sliding_window_size = 75
-FACTOR = 80/100            # 1-overlap%. how much of this data is independent from the following 
+sliding_window_size = 120
+FACTOR = 90/100            # 1-overlap%. how much of this data is independent from the following 
 
-MASTER_PRIOR = False 
+MASTER_PRIOR = 1
 TEST_SIZE = int(0.10 * n)
 
 
@@ -41,10 +41,13 @@ TEST_SIZE = int(0.10 * n)
 tr_l = []
 tt_l = []
 acc =  []
-pred = []
+pred = []       # array used for averaging all predictions, no weight
 
 number_of_weights = int((n-ml.start)/(sliding_window_size*FACTOR))
-slide_weights = np.linspace(0.5, 1.0, number_of_weights)
+if MASTER_PRIOR:
+    slide_weights = np.linspace(0.9, 1.0, number_of_weights)
+else:
+    slide_weights = np.linspace(0.1, 1.0, number_of_weights)
 slide_weights = slide_weights/ slide_weights.sum()
 
 expanding_weights = np.linspace(0.5, 1.0, window_runs)
@@ -89,16 +92,13 @@ def main():
     if(run_sliding_window):
         # print("starting sliding window")
         if not run_normal and MASTER_PRIOR:
-            run_model(1, save_weights=True)
+            run_model(1, save_weights=True, save_results=True)
         sliding_window(use_prior=MASTER_PRIOR, save_weights=True)
 
     ######################## expanding
     if (run_expanding_window):
         expanding_window(use_prior=MASTER_PRIOR, save_weights=True)
     
-
-    end_time = time.time()
-    print(f"elapsed time: {end_time-start_time:.3f} second to run model")
 ################################################## different ways to run the model --- timer ends
 
 
@@ -131,6 +131,8 @@ def main():
     final_pred = final_pred.tolist()
     for i in (final_pred):
         print(i)
+    end_time = time.time()
+    print(f"elapsed time: {end_time-start_time:.3f} second to run model")
 
 
 def run_model(lenght=runs, use_prior=False, save_weights=False, save_results=True):
@@ -171,7 +173,7 @@ def expanding_window(use_prior=False, save_weights=False, save_results=True):
     size = max(window_runs-1, 1)
     # print("starting expanding window")
     for i in range(window_runs):
-        dropout = round(random.uniform(0.2,0.5),3)    
+        dropout = round(random.uniform(0.1,0.3),3)    
         window_size = int(n*(i*(0.40)/size+0.5)) # ( (%A+%B)/(runs-1) * i + %B ) * n
         train_loader = ml.dataloader_subset(dataset, ml.start, window_size, batch_size, True)
         test_loader = ml.dataloader_subset(dataset, window_size, window_size+TEST_SIZE, batch_size)
@@ -204,7 +206,6 @@ def sliding_window(size=sliding_window_size, use_prior=False, save_weights=False
     start = ml.start
     overlap = int(size*FACTOR)
     # ml.disable_save()
-    dropout = round(random.uniform(0.2,0.5),3)
   
     for i in range(0,n,overlap):
         end = start + sliding_window_size + i
@@ -220,6 +221,7 @@ def sliding_window(size=sliding_window_size, use_prior=False, save_weights=False
 
         if use_prior:
             ml.use_save()
+        dropout = round(random.uniform(0.1,0.3),3)
         train_l, test_l, accuracy, prediction = ml.activate_model(epochs, train_loader=train_loader, test_loader=test_loader, future_loader=future_loader, dropout=dropout, percetage=end/n,test_mode=run_model_in_test)
 
         if save_results:        
