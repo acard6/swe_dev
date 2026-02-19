@@ -21,7 +21,7 @@ dataset = ml.convert_data(batch_size)
 data_size = int(n* PERCENTAGE)     # the real data * seed . for splitting real data into training and testing
 
 # var for normal run
-run_normal = 1
+run_normal = 0
 runs = 10        # number of runs to be averaged out
 
 #var for expanding window
