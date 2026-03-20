@@ -22,17 +22,17 @@ data_size = int(n* PERCENTAGE)     # the real data * seed . for splitting real d
 
 
 # var for normal run
-run_normal = 0
+run_normal = 1
 runs = 10        # number of runs to be averaged out
 #var for expanding window
-run_expanding_window = 0
+run_expanding_window = 1
 window_runs = 8
 #var for sliding window
 run_sliding_window = 1
 sliding_window_size = 120
 FACTOR = 90/100            # 1-overlap%. how much of this data is independent from the following 
 
-MASTER_PRIOR = 0
+MASTER_PRIOR = 1
 TEST_SIZE = int(0.10 * n)
 
 
